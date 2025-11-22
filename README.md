@@ -40,10 +40,30 @@ deno task enrich
 # Lancer le serveur de développement
 deno task dev
 
+# Exécuter les tests
+deno task test
+
 # Linter et formatter
 deno task lint
 deno task fmt
 ```
+
+## API
+
+### Documentation interactive
+
+Une fois le serveur lancé, la documentation Swagger est disponible à :
+
+- **Swagger UI** : http://localhost:3000/docs
+- **OpenAPI JSON** : http://localhost:3000/openapi.json
+
+### Rate Limiting
+
+L'API est protégée par un rate limiter :
+
+- **100 requêtes par minute** par adresse IP
+- Headers de réponse : `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+- Code **429** en cas de dépassement
 
 ## Documentation
 

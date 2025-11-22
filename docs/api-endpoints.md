@@ -674,6 +674,44 @@ Liste des échelles géographiques.
 
 ---
 
+## Rate Limiting
+
+L'API est protégée par un rate limiter pour éviter les abus.
+
+**Configuration :**
+
+- **100 requêtes par minute** par adresse IP
+- Fenêtre glissante de 60 secondes
+
+**Headers de réponse :**
+
+| Header                  | Description                              |
+| ----------------------- | ---------------------------------------- |
+| `X-RateLimit-Limit`     | Nombre maximum de requêtes autorisées    |
+| `X-RateLimit-Remaining` | Nombre de requêtes restantes             |
+| `X-RateLimit-Reset`     | Timestamp Unix de réinitialisation       |
+| `Retry-After`           | Secondes avant nouvelle tentative (429)  |
+
+**Exemple de réponse 429 :**
+
+```json
+{
+  "error": {
+    "code": 429,
+    "message": "Trop de requêtes, veuillez réessayer plus tard."
+  }
+}
+```
+
+---
+
+## Documentation interactive
+
+- **Swagger UI** : http://localhost:3000/docs
+- **OpenAPI JSON** : http://localhost:3000/openapi.json
+
+---
+
 ## Codes de réponse
 
 | Code  | Description                                           |
@@ -681,6 +719,7 @@ Liste des échelles géographiques.
 | `200` | Succès                                                |
 | `400` | Requête invalide (paramètres manquants ou incorrects) |
 | `404` | Ressource non trouvée                                 |
+| `429` | Trop de requêtes (rate limit dépassé)                 |
 | `500` | Erreur serveur                                        |
 
 ## Format d'erreur

@@ -1,1 +1,41 @@
 # medias-francais-api
+
+API pour les données sur la propriété des médias français.
+
+## Source des données
+
+Les données proviennent du dépôt [Médias français](https://github.com/mdiplo/Medias_francais) du Monde diplomatique.
+
+Les données sont organisées en sept tableaux :
+
+- **personnes.tsv**, **medias.tsv** et **organisations.tsv** contiennent les médias, personnes physiques ou morales actionnaires
+- **personne-media.tsv**, **personne-organisation.tsv**, **organisation-organisation.tsv** et **organisation-media.tsv** détaillent les liens capitalistiques entre ces actionnaires et médias qu'ils possèdent
+
+## Prérequis
+
+- [Deno](https://deno.com/) - Runtime JavaScript/TypeScript ([Installation](https://docs.deno.com/runtime/getting_started/installation/))
+
+## Installation
+
+```bash
+cp .env.sample .env
+deno install
+```
+
+## Scripts
+
+```bash
+# Générer les fichiers JSON à partir des données TSV
+deno task build
+
+# Lancer le serveur de développement
+deno task dev
+
+# Linter et formatter
+deno task lint
+deno task fmt
+```
+
+## Documentation
+
+- [Script de build](docs/build.md)

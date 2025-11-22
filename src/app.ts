@@ -38,6 +38,19 @@ app.get('/openapi.json', (c) => {
   return c.json(getOpenApiSpec(baseUrl));
 });
 
+// Favicon
+app.get('/favicon.ico', async (c) => {
+  try {
+    const favicon = await Deno.readFile('./src/medias-francais.ico');
+    return c.body(favicon, 200, {
+      'Content-Type': 'image/x-icon',
+      'Cache-Control': 'public, max-age=86400'
+    });
+  } catch {
+    return c.body(null, 204);
+  }
+});
+
 // Root endpoint
 api.get('/', (c) =>
   c.json({

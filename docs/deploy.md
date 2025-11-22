@@ -5,7 +5,6 @@ Guide pour déployer l'API sur [Deno Deploy](https://deno.com/deploy).
 ## Prérequis
 
 - Compte [Deno Deploy](https://dash.deno.com/)
-- Repository GitHub configuré
 
 ## Configuration
 
@@ -15,16 +14,7 @@ Guide pour déployer l'API sur [Deno Deploy](https://deno.com/deploy).
 2. Cliquer sur **New Project**
 3. Noter le nom du projet (ex: `medias-francais-api`)
 
-### 2. Configurer les secrets GitHub
-
-Dans les paramètres du repository GitHub, ajouter les secrets suivants :
-
-| Secret                | Description                         |
-| --------------------- | ----------------------------------- |
-| `DENO_DEPLOY_PROJECT` | Nom du projet Deno Deploy           |
-| `GH_SOURCE`           | URL de base des fichiers TSV source |
-
-### 3. Variables d'environnement Deno Deploy
+### 2. Variables d'environnement Deno Deploy
 
 Dans le dashboard Deno Deploy, configurer les variables :
 
@@ -35,30 +25,8 @@ Dans le dashboard Deno Deploy, configurer les variables :
 
 ## Déploiement automatique
 
-Le déploiement se fait automatiquement via GitHub Actions lors d'un push sur
+Le déploiement se fait automatiquement via Deno Deploy lors d'un push sur
 `master`.
-
-Le workflow :
-
-1. Build les données TSV → JSON
-2. Enrichit les données
-3. Déploie sur Deno Deploy
-
-## Déploiement manuel
-
-### Via CLI
-
-```bash
-# Installer deployctl
-deno install -Arf jsr:@deno/deployctl
-
-# Build et enrichir les données
-deno task build
-deno task enrich
-
-# Déployer
-deployctl deploy --project=<project-name> --include=src,dist/enriched,deno.json,main.ts main.ts
-```
 
 ## Structure des fichiers déployés
 

@@ -23,24 +23,25 @@ const defaultOptions: RateLimiterOptions = {
 export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
   const config = { ...defaultOptions, ...options };
   const store: RateLimitStore = {};
-
-  // Cleanup old entries periodically
-  setInterval(() => {
-    const now = Date.now();
-    for (const key in store) {
-      if (store[key].resetTime < now) {
-        delete store[key];
-      }
-    }
-  }, config.windowMs);
+  let lastCleanup = Date.now();
 
   return async (c: Context, next: Next) => {
+    const now = Date.now();
+
+    // Cleanup old entries periodically (every window)
+    if (now - lastCleanup > config.windowMs) {
+      for (const key in store) {
+        if (store[key].resetTime < now) {
+          delete store[key];
+        }
+      }
+      lastCleanup = now;
+    }
+
     // Generate key (default: IP address)
     const key = config.keyGenerator
       ? config.keyGenerator(c)
       : getClientIP(c);
-
-    const now = Date.now();
 
     // Initialize or reset if window expired
     if (!store[key] || store[key].resetTime < now) {

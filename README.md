@@ -68,6 +68,7 @@ L'API est protégée par un rate limiter :
 
 ## Documentation
 
+- [Diagrammes et architecture](docs/diagrams.md)
 - [Script de build](docs/build.md)
 - [Script d'enrichissement](docs/enrich.md)
 - [API Endpoints](docs/api-endpoints.md)

@@ -1,5 +1,16 @@
 # medias-francais-api
 
+<p align="center">
+  <img src="./medias-francais.png" alt="Médias Français API" width="200">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Deno-2.5.6-black?style=for-the-badge&logo=deno&logoColor=white" alt="Deno">
+  <img src="https://img.shields.io/badge/Hono-4.0-orange?style=for-the-badge&logo=hono&logoColor=white" alt="Hono">
+  <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/License-AGPL--3.0-blue?style=for-the-badge" alt="License">
+</p>
+
 API pour les données sur la propriété des médias français.
 
 ## Source des données

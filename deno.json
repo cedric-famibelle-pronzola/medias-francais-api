@@ -3,6 +3,7 @@
     "start": "deno run main.ts",
     "dev": "deno run --watch --allow-read --allow-net main.ts",
     "build": "deno run --env-file --allow-env --allow-net --allow-write --allow-read build.ts",
+    "enrich": "deno run --allow-read --allow-write enrich.ts",
     "lint": "deno lint",
     "fmt": "deno fmt",
     "check": "deno check"

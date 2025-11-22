@@ -1,6 +1,7 @@
 # Script de build
 
-Le script `build.ts` permet de récupérer les données TSV depuis le dépôt GitHub source et de les convertir en fichiers JSON.
+Le script `build.ts` permet de récupérer les données TSV depuis le dépôt GitHub
+source et de les convertir en fichiers JSON.
 
 ## Utilisation
 
@@ -10,8 +11,10 @@ deno task build
 
 ## Fonctionnement
 
-1. **Récupération des données** : Le script fetch les fichiers TSV depuis l'URL configurée dans la variable d'environnement `GITHUB_SOURCE`
-2. **Parsing** : Utilisation de PapaParse pour convertir les TSV en objets JavaScript
+1. **Récupération des données** : Le script fetch les fichiers TSV depuis l'URL
+   configurée dans la variable d'environnement `GITHUB_SOURCE`
+2. **Parsing** : Utilisation de PapaParse pour convertir les TSV en objets
+   JavaScript
 3. **Export** : Génération des fichiers JSON dans le dossier `dist/`
 
 ## Structure de sortie
@@ -44,7 +47,8 @@ dist/
 
 ## Configuration
 
-Le script nécessite la variable d'environnement `GITHUB_SOURCE` qui pointe vers l'URL de base des fichiers TSV.
+Le script nécessite la variable d'environnement `GITHUB_SOURCE` qui pointe vers
+l'URL de base des fichiers TSV.
 
 Créer un fichier `.env` à la racine du projet :
 

@@ -204,7 +204,9 @@ const baseSpec = {
             description: 'Chaîne de propriété',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/MediaProprietairesUltimes' }
+                schema: {
+                  $ref: '#/components/schemas/MediaProprietairesUltimes'
+                }
               }
             }
           },
@@ -284,7 +286,11 @@ const baseSpec = {
             name: 'annee',
             in: 'query',
             description: 'Année du classement',
-            schema: { type: 'integer', enum: [2021, 2022, 2023, 2024], default: 2024 }
+            schema: {
+              type: 'integer',
+              enum: [2021, 2022, 2023, 2024],
+              default: 2024
+            }
           },
           {
             name: 'limit',
@@ -1074,7 +1080,9 @@ export function getOpenApiSpec(baseUrl: string) {
     servers: [
       {
         url: `${baseUrl}${apiBasePath}`,
-        description: baseUrl.includes('localhost') ? 'Serveur de développement' : 'Serveur de production'
+        description: baseUrl.includes('localhost')
+          ? 'Serveur de développement'
+          : 'Serveur de production'
       }
     ]
   };

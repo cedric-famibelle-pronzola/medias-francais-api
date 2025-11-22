@@ -685,12 +685,12 @@ L'API est protégée par un rate limiter pour éviter les abus.
 
 **Headers de réponse :**
 
-| Header                  | Description                              |
-| ----------------------- | ---------------------------------------- |
-| `X-RateLimit-Limit`     | Nombre maximum de requêtes autorisées    |
-| `X-RateLimit-Remaining` | Nombre de requêtes restantes             |
-| `X-RateLimit-Reset`     | Timestamp Unix de réinitialisation       |
-| `Retry-After`           | Secondes avant nouvelle tentative (429)  |
+| Header                  | Description                             |
+| ----------------------- | --------------------------------------- |
+| `X-RateLimit-Limit`     | Nombre maximum de requêtes autorisées   |
+| `X-RateLimit-Remaining` | Nombre de requêtes restantes            |
+| `X-RateLimit-Reset`     | Timestamp Unix de réinitialisation      |
+| `Retry-After`           | Secondes avant nouvelle tentative (429) |
 
 **Exemple de réponse 429 :**
 

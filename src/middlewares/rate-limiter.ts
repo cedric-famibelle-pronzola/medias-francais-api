@@ -39,9 +39,7 @@ export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
     }
 
     // Generate key (default: IP address)
-    const key = config.keyGenerator
-      ? config.keyGenerator(c)
-      : getClientIP(c);
+    const key = config.keyGenerator ? config.keyGenerator(c) : getClientIP(c);
 
     // Initialize or reset if window expired
     if (!store[key] || store[key].resetTime < now) {
@@ -65,7 +63,10 @@ export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
 
     // Check if limit exceeded
     if (store[key].count > config.max) {
-      c.header('Retry-After', Math.ceil((store[key].resetTime - now) / 1000).toString());
+      c.header(
+        'Retry-After',
+        Math.ceil((store[key].resetTime - now) / 1000).toString()
+      );
       return c.json(
         {
           error: {

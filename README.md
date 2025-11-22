@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue?style=for-the-badge" alt="License">
 </p>
 
-API pour les données sur la propriété des médias français.
+API exposant les données de propriété des médias français.
 
 ## Source des données
 

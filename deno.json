@@ -19,6 +19,7 @@
     "trailingCommas": "never"
   },
   "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.10.6",
     "papaparse": "npm:papaparse@^5.5.3"
   }
 }

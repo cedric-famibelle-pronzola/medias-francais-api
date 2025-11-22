@@ -2,11 +2,13 @@ import { Hono } from '@hono/hono';
 import { logger } from '@hono/hono/logger';
 import { prettyJSON } from '@hono/hono/pretty-json';
 import { cors } from '@hono/hono/cors';
+import { swaggerUI } from '@hono/swagger-ui';
 import { mediasRouter } from './routers/medias.router.ts';
 import { personnesRouter } from './routers/personnes.router.ts';
 import { organisationsRouter } from './routers/organisations.router.ts';
 import { statsRouter } from './routers/stats.router.ts';
 import { mediasService } from './services/medias.service.ts';
+import { openApiSpec } from './openapi.ts';
 
 const app = new Hono();
 const API_BASE_PATH = Deno.env.get('API_BASE_PATH') || '/api';
@@ -17,12 +19,17 @@ app.use('*', logger());
 app.use('*', prettyJSON());
 app.use('*', cors());
 
+// Swagger UI documentation
+app.get('/docs', swaggerUI({ url: '/openapi.json' }));
+app.get('/openapi.json', (c) => c.json(openApiSpec));
+
 // Root endpoint
 api.get('/', (c) =>
   c.json({
     name: 'Médias Français API',
     version: '1.0.0',
     description: 'API sur la propriété des médias français',
+    documentation: '/docs',
     endpoints: {
       medias: `${API_BASE_PATH}/medias`,
       personnes: `${API_BASE_PATH}/personnes`,

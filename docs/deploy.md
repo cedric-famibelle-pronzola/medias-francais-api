@@ -30,13 +30,12 @@ Dans le dashboard Deno Deploy, configurer les variables :
 
 | Variable        | Description                 | Exemple |
 | --------------- | --------------------------- | ------- |
-| `API_PORT`      | Port du serveur (optionnel) | `8000`  |
+| `API_PORT`      | Port du serveur (optionnel) | `3000`  |
 | `API_BASE_PATH` | Chemin de base de l'API     | `/api`  |
 
 ## Déploiement automatique
 
-Le déploiement se fait automatiquement via GitHub Actions lors d'un push sur
-`main` ou `master`.
+Le déploiement se fait automatiquement via GitHub Actions lors d'un push sur `master`.
 
 Le workflow :
 
@@ -45,12 +44,6 @@ Le workflow :
 3. Déploie sur Deno Deploy
 
 ## Déploiement manuel
-
-### Via GitHub Actions
-
-1. Aller dans l'onglet **Actions** du repository
-2. Sélectionner le workflow **Deploy to Deno Deploy**
-3. Cliquer sur **Run workflow**
 
 ### Via CLI
 

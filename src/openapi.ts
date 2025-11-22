@@ -1,4 +1,5 @@
-export const openApiSpec = {
+// Base spec without servers - servers will be added dynamically
+const baseSpec = {
   openapi: '3.0.3',
   info: {
     title: 'Médias Français API',
@@ -12,12 +13,6 @@ export const openApiSpec = {
       name: 'MIT'
     }
   },
-  servers: [
-    {
-      url: 'http://localhost:3000/api',
-      description: 'Serveur de développement'
-    }
-  ],
   tags: [
     { name: 'Médias', description: 'Opérations sur les médias' },
     { name: 'Personnes', description: 'Opérations sur les personnes' },
@@ -1069,3 +1064,18 @@ export const openApiSpec = {
     }
   }
 };
+
+// Generate OpenAPI spec with dynamic server URL
+export function getOpenApiSpec(baseUrl: string) {
+  const apiBasePath = Deno.env.get('API_BASE_PATH') || '/api';
+
+  return {
+    ...baseSpec,
+    servers: [
+      {
+        url: `${baseUrl}${apiBasePath}`,
+        description: baseUrl.includes('localhost') ? 'Serveur de développement' : 'Serveur de production'
+      }
+    ]
+  };
+}

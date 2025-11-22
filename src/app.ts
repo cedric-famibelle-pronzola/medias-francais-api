@@ -8,7 +8,7 @@ import { personnesRouter } from './routers/personnes.router.ts';
 import { organisationsRouter } from './routers/organisations.router.ts';
 import { statsRouter } from './routers/stats.router.ts';
 import { mediasService } from './services/medias.service.ts';
-import { openApiSpec } from './openapi.ts';
+import { getOpenApiSpec } from './openapi.ts';
 import { rateLimiter } from './middlewares/rate-limiter.ts';
 
 const app = new Hono();
@@ -32,7 +32,11 @@ app.use(
 
 // Swagger UI documentation
 app.get('/docs', swaggerUI({ url: '/openapi.json' }));
-app.get('/openapi.json', (c) => c.json(openApiSpec));
+app.get('/openapi.json', (c) => {
+  const url = new URL(c.req.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+  return c.json(getOpenApiSpec(baseUrl));
+});
 
 // Root endpoint
 api.get('/', (c) =>

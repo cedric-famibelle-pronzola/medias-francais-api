@@ -1,0 +1,16 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:papaparse@^5.5.3": "5.5.3"
+  },
+  "npm": {
+    "papaparse@5.5.3": {
+      "integrity": "sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:papaparse@^5.5.3"
+    ]
+  }
+}

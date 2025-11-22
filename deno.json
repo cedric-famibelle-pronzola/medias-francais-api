@@ -15,5 +15,8 @@
     "singleQuote": true,
     "indentWidth": 2,
     "trailingCommas": "never"
+  },
+  "imports": {
+    "papaparse": "npm:papaparse@^5.5.3"
   }
 }

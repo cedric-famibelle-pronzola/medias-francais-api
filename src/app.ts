@@ -9,6 +9,7 @@ import { organisationsRouter } from './routers/organisations.router.ts';
 import { statsRouter } from './routers/stats.router.ts';
 import { mediasService } from './services/medias.service.ts';
 import { openApiSpec } from './openapi.ts';
+import { rateLimiter } from './middlewares/rate-limiter.ts';
 
 const app = new Hono();
 const API_BASE_PATH = Deno.env.get('API_BASE_PATH') || '/api';
@@ -18,6 +19,16 @@ const api = app.basePath(API_BASE_PATH);
 app.use('*', logger());
 app.use('*', prettyJSON());
 app.use('*', cors());
+
+// Rate limiting for API routes
+app.use(
+  '/api/*',
+  rateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    max: 60, // 60 requests per minute
+    message: 'Trop de requêtes, veuillez réessayer plus tard.'
+  })
+);
 
 // Swagger UI documentation
 app.get('/docs', swaggerUI({ url: '/openapi.json' }));

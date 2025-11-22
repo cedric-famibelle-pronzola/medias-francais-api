@@ -4,11 +4,11 @@
 
 import Papa from 'papaparse';
 
-const source = Deno.env.get('GITHUB_SOURCE');
+const source = Deno.env.get('GH_SOURCE');
 
 if (!source) {
   console.error(
-    `%c ERROR %c La variable d'environnement GITHUB_SOURCE n'est pas définie`,
+    `%c ERROR %c La variable d'environnement GH_SOURCE n'est pas définie`,
     'color: white; background-color: red; font-weight: bold',
     'color: red'
   );

@@ -22,7 +22,7 @@ Dans les paramètres du repository GitHub, ajouter les secrets suivants :
 | Secret                | Description                         |
 | --------------------- | ----------------------------------- |
 | `DENO_DEPLOY_PROJECT` | Nom du projet Deno Deploy           |
-| `GITHUB_SOURCE`       | URL de base des fichiers TSV source |
+| `GH_SOURCE`       | URL de base des fichiers TSV source |
 
 ### 3. Variables d'environnement Deno Deploy
 

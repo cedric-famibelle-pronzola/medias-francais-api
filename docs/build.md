@@ -12,7 +12,7 @@ deno task build
 ## Fonctionnement
 
 1. **Récupération des données** : Le script fetch les fichiers TSV depuis l'URL
-   configurée dans la variable d'environnement `GITHUB_SOURCE`
+   configurée dans la variable d'environnement `GH_SOURCE`
 2. **Parsing** : Utilisation de PapaParse pour convertir les TSV en objets
    JavaScript
 3. **Export** : Génération des fichiers JSON dans le dossier `dist/`
@@ -47,13 +47,13 @@ dist/
 
 ## Configuration
 
-Le script nécessite la variable d'environnement `GITHUB_SOURCE` qui pointe vers
+Le script nécessite la variable d'environnement `GH_SOURCE` qui pointe vers
 l'URL de base des fichiers TSV.
 
 Créer un fichier `.env` à la racine du projet :
 
 ```env
-GITHUB_SOURCE=https://raw.githubusercontent.com/mdiplo/Medias_francais/master/
+GH_SOURCE=https://raw.githubusercontent.com/mdiplo/Medias_francais/master/
 ```
 
 ## Permissions Deno

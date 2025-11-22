@@ -61,7 +61,7 @@ Une fois le serveur lancé, la documentation Swagger est disponible à :
 
 L'API est protégée par un rate limiter :
 
-- **100 requêtes par minute** par adresse IP
+- **60 requêtes par minute** par adresse IP
 - Headers de réponse : `X-RateLimit-Limit`, `X-RateLimit-Remaining`,
   `X-RateLimit-Reset`
 - Code **429** en cas de dépassement

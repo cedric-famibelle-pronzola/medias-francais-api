@@ -3,6 +3,7 @@
     "start": "deno run --allow-read --allow-net --allow-env main.ts",
     "dev": "deno run --watch --allow-read --allow-net --allow-env main.ts",
     "build": "deno run --env-file --allow-env --allow-net --allow-write --allow-read build.ts",
+    "build:ci": "deno run --allow-env --allow-net --allow-write --allow-read build.ts",
     "enrich": "deno run --allow-read --allow-write enrich.ts",
     "test": "deno test --allow-read --allow-env tests/",
     "test:watch": "deno test --watch --allow-read --allow-env tests/",

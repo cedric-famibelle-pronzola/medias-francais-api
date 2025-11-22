@@ -22,12 +22,10 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Create .env file
-        run: |
-          echo "GITHUB_SOURCE=${{ secrets.GITHUB_SOURCE }}" > .env
-
       - name: Build data from TSV
-        run: deno task build
+        run: deno task build:ci
+        env:
+          GITHUB_SOURCE: ${{ secrets.GITHUB_SOURCE }}
 
       - name: Enrich data
         run: deno task enrich

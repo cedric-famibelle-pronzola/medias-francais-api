@@ -22,7 +22,7 @@ Dans les paramètres du repository GitHub, ajouter les secrets suivants :
 | Secret                | Description                         |
 | --------------------- | ----------------------------------- |
 | `DENO_DEPLOY_PROJECT` | Nom du projet Deno Deploy           |
-| `GH_SOURCE`       | URL de base des fichiers TSV source |
+| `GH_SOURCE`           | URL de base des fichiers TSV source |
 
 ### 3. Variables d'environnement Deno Deploy
 
@@ -35,7 +35,8 @@ Dans le dashboard Deno Deploy, configurer les variables :
 
 ## Déploiement automatique
 
-Le déploiement se fait automatiquement via GitHub Actions lors d'un push sur `master`.
+Le déploiement se fait automatiquement via GitHub Actions lors d'un push sur
+`master`.
 
 Le workflow :
 

@@ -74,7 +74,8 @@ flowchart TB
 
 ## Pipeline de données
 
-Transformation des données depuis les fichiers TSV source jusqu'aux données enrichies.
+Transformation des données depuis les fichiers TSV source jusqu'aux données
+enrichies.
 
 ```mermaid
 flowchart TB

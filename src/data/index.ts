@@ -99,3 +99,21 @@ export function getPersonnes(): PersonneEnrichie[] {
 export function getOrganisations(): OrganisationEnrichie[] {
   return organisations;
 }
+
+// Test helpers - set mock data for testing
+export function setTestData(
+  mediasData: MediaEnrichi[],
+  personnesData: PersonneEnrichie[],
+  organisationsData: OrganisationEnrichie[]
+): void {
+  medias = mediasData;
+  personnes = personnesData;
+  organisations = organisationsData;
+}
+
+// Clear all data (useful for test cleanup)
+export function clearData(): void {
+  medias = [];
+  personnes = [];
+  organisations = [];
+}

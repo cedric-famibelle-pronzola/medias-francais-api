@@ -1,0 +1,149 @@
+import { assertEquals, assertExists } from '@std/assert';
+import { clearData, setTestData } from '../../src/data/index.ts';
+import app from '../../src/app.ts';
+import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
+
+function setup() {
+  setTestData(mockMedias, mockPersonnes, mockOrganisations);
+}
+
+function cleanup() {
+  clearData();
+}
+
+Deno.test('GET /api/organisations - returns paginated list', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertExists(json.data);
+    assertExists(json.pagination);
+    assertEquals(json.pagination.page, 1);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - accepts pagination params', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations?page=1&limit=2');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.pagination.limit, 2);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - filters by has_medias', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations?has_medias=true');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(
+      json.data.every((o: { medias: unknown[] }) => o.medias.length > 0),
+      true
+    );
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - filters by has_filiales', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations?has_filiales=true');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 1);
+    assertEquals(json.data[0].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations/:nom - returns organisation details', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations/Vivendi');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.nom, 'Vivendi');
+    assertExists(json.proprietaires);
+    assertExists(json.filiales);
+    assertExists(json.medias);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations/:nom - returns 404 for non-existent org', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations/NonExistent');
+    const json = await res.json();
+
+    assertEquals(res.status, 404);
+    assertExists(json.error);
+    assertEquals(json.error.code, 404);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations/:nom/filiales - returns subsidiaries', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations/Vivendi/filiales');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.organisation, 'Vivendi');
+    assertExists(json.filiales);
+    assertEquals(json.filiales.length, 1);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations/:nom/medias - returns owned medias', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations/Vivendi/medias');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.organisation, 'Vivendi');
+    assertExists(json.medias);
+    assertEquals(json.medias.length, 1);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations/:nom/hierarchie - returns full hierarchy', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations/Vivendi/hierarchie');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.organisation, 'Vivendi');
+    assertExists(json.parents);
+    assertExists(json.enfants);
+    assertEquals(json.parents.length, 1);
+    assertEquals(json.enfants.length, 1);
+  } finally {
+    cleanup();
+  }
+});

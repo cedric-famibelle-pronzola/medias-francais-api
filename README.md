@@ -49,3 +49,4 @@ deno task fmt
 
 - [Script de build](docs/build.md)
 - [Script d'enrichissement](docs/enrich.md)
+- [API Endpoints](docs/api-endpoints.md)

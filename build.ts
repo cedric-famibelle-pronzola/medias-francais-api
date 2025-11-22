@@ -6,6 +6,21 @@ import Papa from 'papaparse';
 
 const source = Deno.env.get('GITHUB_SOURCE');
 
+if (!source) {
+  console.error(
+    `%c ERROR %c La variable d'environnement GITHUB_SOURCE n'est pas définie`,
+    'color: white; background-color: red; font-weight: bold',
+    'color: red'
+  );
+
+  console.error(
+    `%c Exécutez : %ccp .env.sample .env`,
+    'color: gray',
+    'color: cyan'
+  );
+  Deno.exit(1);
+}
+
 const mainFiles = [
   'personnes.tsv',
   'medias.tsv',

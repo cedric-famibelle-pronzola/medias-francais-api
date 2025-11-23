@@ -39,17 +39,6 @@ cp .env.sample .env
 deno install
 ```
 
-### Configuration du robots.txt (optionnel)
-
-Pour personnaliser le comportement des robots d'indexation :
-
-```bash
-cp robots.txt.sample robots.txt
-```
-
-Modifiez ensuite `robots.txt` selon vos besoins. Si le fichier n'existe pas, une
-configuration par défaut permissive sera utilisée.
-
 ## Scripts
 
 ```bash

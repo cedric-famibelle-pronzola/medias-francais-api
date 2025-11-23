@@ -1,16 +1,16 @@
 # Déploiement sur Deno Deploy
 
-Guide pour déployer l'API sur [Deno Deploy](https://deno.com/deploy).
+Guide pour déployer l'API sur [Deno Deploy](https://console.com/deploy).
 
 ## Prérequis
 
-- Compte [Deno Deploy](https://dash.deno.com/)
+- Compte [Deno Deploy](https://console.deno.com/)
 
 ## Configuration
 
 ### 1. Créer un projet Deno Deploy
 
-1. Aller sur [dash.deno.com](https://dash.deno.com/)
+1. Aller sur [console.deno.com](https://console.deno.com/)
 2. Cliquer sur **New Project**
 3. Noter le nom du projet (ex: `medias-francais-api`)
 

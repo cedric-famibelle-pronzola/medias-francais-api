@@ -21,8 +21,9 @@ app.use('*', prettyJSON());
 app.use('*', cors());
 
 // Rate limiting for API routes
+const apiPattern = API_BASE_PATH === '/' ? '/*' : `${API_BASE_PATH}/*`;
 app.use(
-  '/api/*',
+  apiPattern,
   rateLimiter({
     windowMs: 60 * 1000, // 1 minute
     max: 60, // 60 requests per minute

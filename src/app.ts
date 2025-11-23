@@ -12,7 +12,7 @@ import { getOpenApiSpec } from './openapi.ts';
 import { rateLimiter } from './middlewares/rate-limiter.ts';
 
 const app = new Hono();
-const API_BASE_PATH = Deno.env.get('API_BASE_PATH') || '/api';
+const API_BASE_PATH = Deno.env.get('API_BASE_PATH') || '/';
 const api = app.basePath(API_BASE_PATH);
 
 // Middlewares

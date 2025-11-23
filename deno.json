@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "start": "deno run --allow-read --allow-net --allow-env main.ts",
-    "dev": "deno run --watch --allow-read --allow-net --allow-env main.ts",
+    "start": "deno run --env-file --allow-read --allow-net --allow-env main.ts",
+    "dev": "deno run --env-file --watch --allow-read --allow-net --allow-env main.ts",
     "build": "deno run --env-file --allow-env --allow-net --allow-write --allow-read build.ts",
     "build:ci": "deno run --allow-env --allow-net --allow-write --allow-read build.ts",
     "enrich": "deno run --allow-read --allow-write enrich.ts",

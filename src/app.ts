@@ -30,8 +30,8 @@ app.use(
   })
 );
 
-// Swagger UI documentation
-app.get('/docs', swaggerUI({ url: '/openapi.json' }));
+// Swagger UI documentation (root)
+app.get('/', swaggerUI({ url: '/openapi.json' }));
 app.get('/openapi.json', (c) => {
   const url = new URL(c.req.url);
   const baseUrl = `${url.protocol}//${url.host}`;
@@ -57,7 +57,7 @@ api.get('/', (c) =>
     name: 'Médias Français API',
     version: '1.0.0',
     description: 'API sur la propriété des médias français',
-    documentation: '/docs',
+    documentation: '/',
     endpoints: {
       medias: `${API_BASE_PATH}/medias`,
       personnes: `${API_BASE_PATH}/personnes`,

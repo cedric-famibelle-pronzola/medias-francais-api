@@ -251,7 +251,7 @@ Organisation hiérarchique des endpoints.
 ```mermaid
 flowchart TB
     subgraph Root["🌐 / (racine)"]
-        DOCS["/docs<br/>Swagger UI"]
+        DOCS["/<br/>Swagger UI"]
         SPEC["/openapi.json<br/>Spécification OpenAPI"]
     end
 

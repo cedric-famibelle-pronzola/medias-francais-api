@@ -707,8 +707,8 @@ L'API est protégée par un rate limiter pour éviter les abus.
 
 ## Documentation interactive
 
-- **Swagger UI** : http://localhost:3000/docs
-- **OpenAPI JSON** : http://localhost:3000/openapi.json
+- **Swagger UI** : http://localhost:8000/
+- **OpenAPI JSON** : http://localhost:8000/openapi.json
 
 ---
 

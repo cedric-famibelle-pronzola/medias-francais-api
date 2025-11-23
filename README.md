@@ -65,8 +65,8 @@ deno task fmt
 
 Une fois le serveur lancé, la documentation Swagger est disponible à :
 
-- **Swagger UI** : http://localhost:3000/docs
-- **OpenAPI JSON** : http://localhost:3000/openapi.json
+- **Swagger UI** : http://localhost:8000/
+- **OpenAPI JSON** : http://localhost:8000/openapi.json
 
 ### Rate Limiting
 

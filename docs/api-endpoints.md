@@ -5,7 +5,7 @@ Documentation des endpoints pour l'API Hono.
 ## Base URL
 
 ```
-http://localhost:3000/api
+http://localhost:3000
 ```
 
 ---
@@ -15,7 +15,7 @@ http://localhost:3000/api
 ### Liste des médias
 
 ```
-GET /api/medias
+GET /medias
 ```
 
 Liste tous les médias avec pagination et filtres.
@@ -61,7 +61,7 @@ Liste tous les médias avec pagination et filtres.
 ### Détail d'un média
 
 ```
-GET /api/medias/:nom
+GET /medias/:nom
 ```
 
 Récupère les informations complètes d'un média.
@@ -105,7 +105,7 @@ Récupère les informations complètes d'un média.
 ### Propriétaires d'un média
 
 ```
-GET /api/medias/:nom/proprietaires
+GET /medias/:nom/proprietaires
 ```
 
 Liste des propriétaires directs d'un média.
@@ -131,7 +131,7 @@ Liste des propriétaires directs d'un média.
 ### Propriétaires ultimes d'un média
 
 ```
-GET /api/medias/:nom/proprietaires-ultimes
+GET /medias/:nom/proprietaires-ultimes
 ```
 
 Chaîne de propriété complète jusqu'aux personnes physiques.
@@ -161,7 +161,7 @@ Chaîne de propriété complète jusqu'aux personnes physiques.
 ### Recherche de médias
 
 ```
-GET /api/medias/search
+GET /medias/search
 ```
 
 Recherche de médias par nom.
@@ -197,7 +197,7 @@ Recherche de médias par nom.
 ### Liste des personnes
 
 ```
-GET /api/personnes
+GET /personnes
 ```
 
 Liste toutes les personnes avec filtres.
@@ -242,7 +242,7 @@ Liste toutes les personnes avec filtres.
 ### Détail d'une personne
 
 ```
-GET /api/personnes/:nom
+GET /personnes/:nom
 ```
 
 Récupère les informations complètes d'une personne.
@@ -294,7 +294,7 @@ Récupère les informations complètes d'une personne.
 ### Médias d'une personne
 
 ```
-GET /api/personnes/:nom/medias
+GET /personnes/:nom/medias
 ```
 
 Tous les médias détenus par une personne (directs et via organisations).
@@ -321,7 +321,7 @@ Tous les médias détenus par une personne (directs et via organisations).
 ### Organisations d'une personne
 
 ```
-GET /api/personnes/:nom/organisations
+GET /personnes/:nom/organisations
 ```
 
 Organisations contrôlées par une personne.
@@ -346,7 +346,7 @@ Organisations contrôlées par une personne.
 ### Top Challenges
 
 ```
-GET /api/personnes/top-challenges
+GET /personnes/top-challenges
 ```
 
 Classement des personnes les plus riches.
@@ -387,7 +387,7 @@ Classement des personnes les plus riches.
 ### Liste des organisations
 
 ```
-GET /api/organisations
+GET /organisations
 ```
 
 Liste toutes les organisations avec filtres.
@@ -427,7 +427,7 @@ Liste toutes les organisations avec filtres.
 ### Détail d'une organisation
 
 ```
-GET /api/organisations/:nom
+GET /organisations/:nom
 ```
 
 Récupère les informations complètes d'une organisation.
@@ -469,7 +469,7 @@ Récupère les informations complètes d'une organisation.
 ### Filiales d'une organisation
 
 ```
-GET /api/organisations/:nom/filiales
+GET /organisations/:nom/filiales
 ```
 
 Liste des filiales d'une organisation.
@@ -494,7 +494,7 @@ Liste des filiales d'une organisation.
 ### Médias d'une organisation
 
 ```
-GET /api/organisations/:nom/medias
+GET /organisations/:nom/medias
 ```
 
 Médias détenus directement par une organisation.
@@ -526,7 +526,7 @@ Médias détenus directement par une organisation.
 ### Hiérarchie d'une organisation
 
 ```
-GET /api/organisations/:nom/hierarchie
+GET /organisations/:nom/hierarchie
 ```
 
 Arbre complet de l'organisation : propriétaires parents et filiales enfants.
@@ -559,7 +559,7 @@ Arbre complet de l'organisation : propriétaires parents et filiales enfants.
 ### Statistiques globales
 
 ```
-GET /api/stats
+GET /stats
 ```
 
 Statistiques générales sur les données.
@@ -592,7 +592,7 @@ Statistiques générales sur les données.
 ### Concentration des médias
 
 ```
-GET /api/stats/concentration
+GET /stats/concentration
 ```
 
 Analyse de la concentration de la propriété des médias.
@@ -631,7 +631,7 @@ Analyse de la concentration de la propriété des médias.
 ### Types de médias
 
 ```
-GET /api/types
+GET /types
 ```
 
 Liste des types de médias disponibles.
@@ -654,7 +654,7 @@ Liste des types de médias disponibles.
 ### Échelles géographiques
 
 ```
-GET /api/echelles
+GET /echelles
 ```
 
 Liste des échelles géographiques.

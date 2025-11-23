@@ -51,6 +51,21 @@ app.get('/favicon.ico', async (c) => {
   }
 });
 
+// Robots.txt
+app.get('/robots.txt', async (c) => {
+  try {
+    const robots = await Deno.readTextFile('./robots.txt');
+    return c.text(robots, 200, {
+      'Content-Type': 'text/plain',
+      'Cache-Control': 'public, max-age=86400'
+    });
+  } catch {
+    return c.text('User-agent: *\nAllow: /', 200, {
+      'Content-Type': 'text/plain'
+    });
+  }
+});
+
 // Root endpoint
 api.get('/', (c) =>
   c.json({

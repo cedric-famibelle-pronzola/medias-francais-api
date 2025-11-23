@@ -3,7 +3,7 @@
 import app from './src/app.ts';
 import { loadData } from './src/data/index.ts';
 
-const port = parseInt(Deno.env.get('API_PORT') || '3000');
+const port = parseInt(Deno.env.get('API_PORT') || '8000');
 
 // Load data before starting server
 console.log('📂 Loading data...');

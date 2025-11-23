@@ -12,13 +12,21 @@ import { mediasService } from './services/medias.service.ts';
 import { getOpenApiSpec } from './openapi.ts';
 import { rateLimiter } from './middlewares/rate-limiter.ts';
 import { cache } from './middlewares/cache.ts';
+import { structuredLogger } from './middlewares/structured-logger.ts';
 
 const app = new Hono();
 const API_BASE_PATH = Deno.env.get('API_BASE_PATH') || '/';
 const api = app.basePath(API_BASE_PATH);
 
 // Middlewares
-app.use('*', logger());
+const isProduction = Deno.env.get('ENVIRONMENT') === 'production';
+
+if (isProduction) {
+  app.use('*', structuredLogger());
+} else {
+  app.use('*', logger());
+}
+
 app.use('*', compress());
 app.use('*', prettyJSON());
 app.use('*', cors());

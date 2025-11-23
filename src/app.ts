@@ -2,6 +2,7 @@ import { Hono } from '@hono/hono';
 import { logger } from '@hono/hono/logger';
 import { prettyJSON } from '@hono/hono/pretty-json';
 import { cors } from '@hono/hono/cors';
+import { compress } from '@hono/hono/compress';
 import { swaggerUI } from '@hono/swagger-ui';
 import { mediasRouter } from './routers/medias.router.ts';
 import { personnesRouter } from './routers/personnes.router.ts';
@@ -10,6 +11,7 @@ import { statsRouter } from './routers/stats.router.ts';
 import { mediasService } from './services/medias.service.ts';
 import { getOpenApiSpec } from './openapi.ts';
 import { rateLimiter } from './middlewares/rate-limiter.ts';
+import { cache } from './middlewares/cache.ts';
 
 const app = new Hono();
 const API_BASE_PATH = Deno.env.get('API_BASE_PATH') || '/';
@@ -17,6 +19,7 @@ const api = app.basePath(API_BASE_PATH);
 
 // Middlewares
 app.use('*', logger());
+app.use('*', compress());
 app.use('*', prettyJSON());
 app.use('*', cors());
 
@@ -30,6 +33,9 @@ app.use(
     message: 'Trop de requêtes, veuillez réessayer plus tard.'
   })
 );
+
+// Cache headers for API routes
+app.use(apiPattern, cache({ maxAge: 300 })); // 5 minutes
 
 // Swagger UI documentation (root)
 app.get('/', swaggerUI({ url: '/openapi.json' }));
@@ -65,6 +71,21 @@ app.get('/robots.txt', async (c) => {
       'Content-Type': 'text/plain'
     });
   }
+});
+
+// Health check
+app.get('/health', (c) => {
+  return c.json(
+    {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(performance.now() / 1000)
+    },
+    200,
+    {
+      'Cache-Control': 'no-store'
+    }
+  );
 });
 
 // Root endpoint

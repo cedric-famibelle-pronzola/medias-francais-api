@@ -205,3 +205,96 @@ Deno.test('GET /api/personnes/:nom/organisations - returns controlled orgs', asy
     cleanup();
   }
 });
+
+// Sorting tests
+Deno.test('GET /api/personnes - sorts by nom ascending', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/personnes?sort=nom&order=asc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'Bernard Arnault');
+    assertEquals(json.data[json.data.length - 1].nom, 'Xavier Niel');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/personnes - sorts by nom descending', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/personnes?sort=nom&order=desc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'Xavier Niel');
+    assertEquals(json.data[json.data.length - 1].nom, 'Bernard Arnault');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/personnes - sorts by challenges2024', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/personnes?sort=challenges2024&order=asc'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'Bernard Arnault');
+    assertEquals(json.data[0].classements.challenges2024, 1);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/personnes - sorts by nbMedias', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/personnes?sort=nbMedias&order=desc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    // Personne Sans Media has 0 medias, should be last
+    assertEquals(json.data[json.data.length - 1].nom, 'Personne Sans Media');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/personnes - sorting works with filters', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/personnes?forbes=true&sort=challenges2024&order=asc'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.data[0].nom, 'Bernard Arnault');
+    assertEquals(json.data[1].nom, 'Xavier Niel');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/personnes - sorting works with pagination', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/personnes?sort=nom&order=asc&page=1&limit=2'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.data[0].nom, 'Bernard Arnault');
+    assertEquals(json.data[1].nom, 'Patrick Drahi');
+  } finally {
+    cleanup();
+  }
+});

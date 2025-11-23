@@ -7,6 +7,11 @@ export interface PersonneFilters {
   hasMedias?: boolean;
 }
 
+export interface SortParams {
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -27,7 +32,8 @@ type AnneeKey = 2021 | 2022 | 2023 | 2024;
 export const personnesService = {
   all(
     filters: PersonneFilters = {},
-    pagination: PaginationParams = { page: 1, limit: 20 }
+    pagination: PaginationParams = { page: 1, limit: 20 },
+    sorting: SortParams = {}
   ): PaginatedResult<PersonneEnrichie> {
     let result = getPersonnes();
     const annee = (filters.annee || 2024) as AnneeKey;
@@ -52,6 +58,38 @@ export const personnesService = {
       result = result.filter(
         (p) => p.mediasDirects.length > 0 || p.mediasViaOrganisations.length > 0
       );
+    }
+
+    // Apply sorting
+    if (sorting.sort) {
+      const order = sorting.order === 'desc' ? -1 : 1;
+      result = [...result].sort((a, b) => {
+        let aVal: string | number | boolean | null = null;
+        let bVal: string | number | boolean | null = null;
+
+        if (sorting.sort === 'nom') {
+          aVal = a.nom;
+          bVal = b.nom;
+        } else if (sorting.sort === 'nbMedias') {
+          aVal = a.mediasDirects.length + a.mediasViaOrganisations.length;
+          bVal = b.mediasDirects.length + b.mediasViaOrganisations.length;
+        } else if (sorting.sort?.startsWith('challenges')) {
+          const key = sorting.sort as keyof PersonneEnrichie['classements'];
+          aVal = a.classements[key] as number | null;
+          bVal = b.classements[key] as number | null;
+        }
+
+        if (aVal === null) return 1;
+        if (bVal === null) return -1;
+
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return aVal.localeCompare(bVal, 'fr') * order;
+        }
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return (aVal - bVal) * order;
+        }
+        return 0;
+      });
     }
 
     // Pagination

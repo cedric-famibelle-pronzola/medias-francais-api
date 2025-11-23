@@ -217,3 +217,130 @@ Deno.test('personnesService.topChallenges - works with different years', () => {
     cleanup();
   }
 });
+
+// Sorting tests
+Deno.test('personnesService.all - sorts by nom ascending', () => {
+  setup();
+  try {
+    const result = personnesService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(result.data[0].nom, 'Bernard Arnault');
+    assertEquals(result.data[1].nom, 'Patrick Drahi');
+    assertEquals(result.data[2].nom, 'Personne Sans Media');
+    assertEquals(result.data[3].nom, 'Xavier Niel');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('personnesService.all - sorts by nom descending', () => {
+  setup();
+  try {
+    const result = personnesService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom',
+      order: 'desc'
+    });
+
+    assertEquals(result.data[0].nom, 'Xavier Niel');
+    assertEquals(result.data[1].nom, 'Personne Sans Media');
+    assertEquals(result.data[2].nom, 'Patrick Drahi');
+    assertEquals(result.data[3].nom, 'Bernard Arnault');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('personnesService.all - sorts by challenges2024', () => {
+  setup();
+  try {
+    const result = personnesService.all({}, { page: 1, limit: 10 }, {
+      sort: 'challenges2024',
+      order: 'asc'
+    });
+
+    assertEquals(result.data[0].nom, 'Bernard Arnault');
+    assertEquals(result.data[0].classements.challenges2024, 1);
+    assertEquals(result.data[1].nom, 'Xavier Niel');
+    assertEquals(result.data[1].classements.challenges2024, 8);
+    assertEquals(result.data[2].nom, 'Patrick Drahi');
+    assertEquals(result.data[2].classements.challenges2024, 15);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('personnesService.all - sorts by nbMedias', () => {
+  setup();
+  try {
+    const result = personnesService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nbMedias',
+      order: 'desc'
+    });
+
+    // Personne Sans Media has 0 medias, should be last
+    assertEquals(result.data[3].nom, 'Personne Sans Media');
+    // Others have 1 media each
+    assertEquals(
+      result.data[0].mediasDirects.length +
+        result.data[0].mediasViaOrganisations.length,
+      1
+    );
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('personnesService.all - default sort order is ascending', () => {
+  setup();
+  try {
+    const result = personnesService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom'
+    });
+
+    assertEquals(result.data[0].nom, 'Bernard Arnault');
+    assertEquals(result.data[3].nom, 'Xavier Niel');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('personnesService.all - sorting works with filters', () => {
+  setup();
+  try {
+    const result = personnesService.all(
+      { forbes: true, annee: 2024 },
+      { page: 1, limit: 10 },
+      { sort: 'challenges2024', order: 'asc' }
+    );
+
+    assertEquals(result.data.length, 2);
+    assertEquals(result.data[0].nom, 'Bernard Arnault');
+    assertEquals(result.data[1].nom, 'Xavier Niel');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('personnesService.all - sorting works with pagination', () => {
+  setup();
+  try {
+    const page1 = personnesService.all({}, { page: 1, limit: 2 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+    const page2 = personnesService.all({}, { page: 2, limit: 2 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(page1.data[0].nom, 'Bernard Arnault');
+    assertEquals(page1.data[1].nom, 'Patrick Drahi');
+    assertEquals(page2.data[0].nom, 'Personne Sans Media');
+    assertEquals(page2.data[1].nom, 'Xavier Niel');
+  } finally {
+    cleanup();
+  }
+});

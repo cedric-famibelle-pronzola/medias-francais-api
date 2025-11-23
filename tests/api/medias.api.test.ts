@@ -174,3 +174,83 @@ Deno.test('GET /api/medias/:nom/proprietaires-ultimes - returns ownership chain'
     cleanup();
   }
 });
+
+// Sorting tests
+Deno.test('GET /api/medias - sorts by nom ascending', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/medias?sort=nom&order=asc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'BFM TV');
+    assertEquals(json.data[json.data.length - 1].nom, 'Tribune de Genève');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/medias - sorts by nom descending', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/medias?sort=nom&order=desc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'Tribune de Genève');
+    assertEquals(json.data[json.data.length - 1].nom, 'BFM TV');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/medias - sorts by type', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/medias?sort=type&order=asc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    // Presse should come before Radio and Télévision
+    assertEquals(
+      json.data[0].type,
+      'Presse (généraliste  politique  économique)'
+    );
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/medias - sorting works with filters', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/medias?type=Télévision&sort=nom&order=asc'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.data[0].nom, 'BFM TV');
+    assertEquals(json.data[1].nom, 'La Cinq');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/medias - sorting works with pagination', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/medias?sort=nom&order=asc&page=1&limit=2'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.data[0].nom, 'BFM TV');
+    assertEquals(json.data[1].nom, 'France Inter');
+  } finally {
+    cleanup();
+  }
+});

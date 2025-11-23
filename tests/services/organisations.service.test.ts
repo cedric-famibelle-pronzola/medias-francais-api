@@ -158,3 +158,125 @@ Deno.test('organisationsService.findByNom - includes medias', () => {
     cleanup();
   }
 });
+
+// Sorting tests
+Deno.test('organisationsService.all - sorts by nom ascending', () => {
+  setup();
+  try {
+    const result = organisationsService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(result.data[0].nom, 'Le Monde libre');
+    assertEquals(result.data[1].nom, 'Organisation Sans Media');
+    assertEquals(result.data[2].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('organisationsService.all - sorts by nom descending', () => {
+  setup();
+  try {
+    const result = organisationsService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom',
+      order: 'desc'
+    });
+
+    assertEquals(result.data[0].nom, 'Vivendi');
+    assertEquals(result.data[1].nom, 'Organisation Sans Media');
+    assertEquals(result.data[2].nom, 'Le Monde libre');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('organisationsService.all - sorts by nbMedias', () => {
+  setup();
+  try {
+    const result = organisationsService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nbMedias',
+      order: 'desc'
+    });
+
+    // Vivendi and Le Monde libre have 1 media each
+    assertEquals(result.data[0].medias.length, 1);
+    assertEquals(result.data[1].medias.length, 1);
+    // Organisation Sans Media has 0 medias
+    assertEquals(result.data[2].nom, 'Organisation Sans Media');
+    assertEquals(result.data[2].medias.length, 0);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('organisationsService.all - sorts by nbFiliales', () => {
+  setup();
+  try {
+    const result = organisationsService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nbFiliales',
+      order: 'desc'
+    });
+
+    // Vivendi has 1 filiale
+    assertEquals(result.data[0].nom, 'Vivendi');
+    assertEquals(result.data[0].filiales.length, 1);
+    // Others have 0 filiales
+    assertEquals(result.data[1].filiales.length, 0);
+    assertEquals(result.data[2].filiales.length, 0);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('organisationsService.all - default sort order is ascending', () => {
+  setup();
+  try {
+    const result = organisationsService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom'
+    });
+
+    assertEquals(result.data[0].nom, 'Le Monde libre');
+    assertEquals(result.data[2].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('organisationsService.all - sorting works with filters', () => {
+  setup();
+  try {
+    const result = organisationsService.all(
+      { hasMedias: true },
+      { page: 1, limit: 10 },
+      { sort: 'nom', order: 'asc' }
+    );
+
+    assertEquals(result.data.length, 2);
+    assertEquals(result.data[0].nom, 'Le Monde libre');
+    assertEquals(result.data[1].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('organisationsService.all - sorting works with pagination', () => {
+  setup();
+  try {
+    const page1 = organisationsService.all({}, { page: 1, limit: 2 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+    const page2 = organisationsService.all({}, { page: 2, limit: 2 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(page1.data[0].nom, 'Le Monde libre');
+    assertEquals(page1.data[1].nom, 'Organisation Sans Media');
+    assertEquals(page2.data[0].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});

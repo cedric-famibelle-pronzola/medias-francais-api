@@ -9,13 +9,16 @@ organisationsRouter.get('/', (c) => {
   const hasFiliales = c.req.query('has_filiales');
   const page = parseInt(c.req.query('page') || '1');
   const limit = parseInt(c.req.query('limit') || '20');
+  const sort = c.req.query('sort');
+  const order = c.req.query('order') as 'asc' | 'desc' | undefined;
 
   const result = organisationsService.all(
     {
       hasMedias: hasMedias ? hasMedias === 'true' : undefined,
       hasFiliales: hasFiliales ? hasFiliales === 'true' : undefined
     },
-    { page, limit }
+    { page, limit },
+    { sort, order }
   );
 
   return c.json(result);

@@ -147,3 +147,101 @@ Deno.test('GET /api/organisations/:nom/hierarchie - returns full hierarchy', asy
     cleanup();
   }
 });
+
+// Sorting tests
+Deno.test('GET /api/organisations - sorts by nom ascending', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations?sort=nom&order=asc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'Le Monde libre');
+    assertEquals(json.data[json.data.length - 1].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - sorts by nom descending', async () => {
+  setup();
+  try {
+    const res = await app.request('/api/organisations?sort=nom&order=desc');
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data[0].nom, 'Vivendi');
+    assertEquals(json.data[json.data.length - 1].nom, 'Le Monde libre');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - sorts by nbMedias', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/organisations?sort=nbMedias&order=desc'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    // Organisation Sans Media has 0 medias, should be last
+    assertEquals(
+      json.data[json.data.length - 1].nom,
+      'Organisation Sans Media'
+    );
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - sorts by nbFiliales', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/organisations?sort=nbFiliales&order=desc'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    // Vivendi has 1 filiale, should be first
+    assertEquals(json.data[0].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - sorting works with filters', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/organisations?has_medias=true&sort=nom&order=asc'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.data[0].nom, 'Le Monde libre');
+    assertEquals(json.data[1].nom, 'Vivendi');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /api/organisations - sorting works with pagination', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      '/api/organisations?sort=nom&order=asc&page=1&limit=2'
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.data.length, 2);
+    assertEquals(json.data[0].nom, 'Le Monde libre');
+    assertEquals(json.data[1].nom, 'Organisation Sans Media');
+  } finally {
+    cleanup();
+  }
+});

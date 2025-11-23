@@ -7,6 +7,11 @@ export interface MediaFilters {
   disparu?: boolean;
 }
 
+export interface SortParams {
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -25,7 +30,8 @@ export interface PaginatedResult<T> {
 export const mediasService = {
   all(
     filters: MediaFilters = {},
-    pagination: PaginationParams = { page: 1, limit: 20 }
+    pagination: PaginationParams = { page: 1, limit: 20 },
+    sorting: SortParams = {}
   ): PaginatedResult<MediaEnrichi> {
     let result = getMedias();
 
@@ -47,6 +53,26 @@ export const mediasService = {
     }
     if (filters.disparu !== undefined) {
       result = result.filter((m) => m.disparu === filters.disparu);
+    }
+
+    // Apply sorting
+    if (sorting.sort) {
+      const order = sorting.order === 'desc' ? -1 : 1;
+      result = [...result].sort((a, b) => {
+        const aVal = a[sorting.sort as keyof MediaEnrichi];
+        const bVal = b[sorting.sort as keyof MediaEnrichi];
+
+        if (aVal === undefined || aVal === null) return 1;
+        if (bVal === undefined || bVal === null) return -1;
+
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return aVal.localeCompare(bVal, 'fr') * order;
+        }
+        if (typeof aVal === 'boolean' && typeof bVal === 'boolean') {
+          return (aVal === bVal ? 0 : aVal ? -1 : 1) * order;
+        }
+        return 0;
+      });
     }
 
     // Pagination

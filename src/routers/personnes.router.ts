@@ -11,6 +11,8 @@ personnesRouter.get('/', (c) => {
   const hasMedias = c.req.query('has_medias');
   const page = parseInt(c.req.query('page') || '1');
   const limit = parseInt(c.req.query('limit') || '20');
+  const sort = c.req.query('sort');
+  const order = c.req.query('order') as 'asc' | 'desc' | undefined;
 
   const result = personnesService.all(
     {
@@ -19,7 +21,8 @@ personnesRouter.get('/', (c) => {
       annee: annee ? parseInt(annee) : undefined,
       hasMedias: hasMedias ? hasMedias === 'true' : undefined
     },
-    { page, limit }
+    { page, limit },
+    { sort, order }
   );
 
   return c.json(result);

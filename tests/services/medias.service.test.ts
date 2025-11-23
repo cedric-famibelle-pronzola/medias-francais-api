@@ -220,3 +220,136 @@ Deno.test('mediasService.getEchelles - returns unique echelles', () => {
     cleanup();
   }
 });
+
+// Sorting tests
+Deno.test('mediasService.all - sorts by nom ascending', () => {
+  setup();
+  try {
+    const result = mediasService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(result.data[0].nom, 'BFM TV');
+    assertEquals(result.data[1].nom, 'France Inter');
+    assertEquals(result.data[2].nom, 'La Cinq');
+    assertEquals(result.data[3].nom, 'Le Monde');
+    assertEquals(result.data[4].nom, 'Tribune de Genève');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.all - sorts by nom descending', () => {
+  setup();
+  try {
+    const result = mediasService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom',
+      order: 'desc'
+    });
+
+    assertEquals(result.data[0].nom, 'Tribune de Genève');
+    assertEquals(result.data[1].nom, 'Le Monde');
+    assertEquals(result.data[2].nom, 'La Cinq');
+    assertEquals(result.data[3].nom, 'France Inter');
+    assertEquals(result.data[4].nom, 'BFM TV');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.all - sorts by type', () => {
+  setup();
+  try {
+    const result = mediasService.all({}, { page: 1, limit: 10 }, {
+      sort: 'type',
+      order: 'asc'
+    });
+
+    // Presse comes before Radio, Radio before Télévision
+    assertEquals(
+      result.data[0].type,
+      'Presse (généraliste  politique  économique)'
+    );
+    assertEquals(
+      result.data[1].type,
+      'Presse (généraliste  politique  économique)'
+    );
+    assertEquals(result.data[2].type, 'Radio');
+    assertEquals(result.data[3].type, 'Télévision');
+    assertEquals(result.data[4].type, 'Télévision');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.all - sorts by prix', () => {
+  setup();
+  try {
+    const result = mediasService.all({}, { page: 1, limit: 10 }, {
+      sort: 'prix',
+      order: 'asc'
+    });
+
+    // Gratuit comes before Payant
+    assertEquals(result.data[0].prix, 'Gratuit');
+    assertEquals(result.data[1].prix, 'Gratuit');
+    assertEquals(result.data[2].prix, 'Gratuit');
+    assertEquals(result.data[3].prix, 'Payant');
+    assertEquals(result.data[4].prix, 'Payant');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.all - default sort order is ascending', () => {
+  setup();
+  try {
+    const result = mediasService.all({}, { page: 1, limit: 10 }, {
+      sort: 'nom'
+    });
+
+    assertEquals(result.data[0].nom, 'BFM TV');
+    assertEquals(result.data[4].nom, 'Tribune de Genève');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.all - sorting works with filters', () => {
+  setup();
+  try {
+    const result = mediasService.all(
+      { type: 'Télévision' },
+      { page: 1, limit: 10 },
+      { sort: 'nom', order: 'asc' }
+    );
+
+    assertEquals(result.data.length, 2);
+    assertEquals(result.data[0].nom, 'BFM TV');
+    assertEquals(result.data[1].nom, 'La Cinq');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.all - sorting works with pagination', () => {
+  setup();
+  try {
+    const page1 = mediasService.all({}, { page: 1, limit: 2 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+    const page2 = mediasService.all({}, { page: 2, limit: 2 }, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(page1.data[0].nom, 'BFM TV');
+    assertEquals(page1.data[1].nom, 'France Inter');
+    assertEquals(page2.data[0].nom, 'La Cinq');
+    assertEquals(page2.data[1].nom, 'Le Monde');
+  } finally {
+    cleanup();
+  }
+});

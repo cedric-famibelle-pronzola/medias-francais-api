@@ -69,6 +69,21 @@ const baseSpec = {
             in: 'query',
             description: 'Nombre de résultats par page',
             schema: { type: 'integer', default: 20, minimum: 1, maximum: 100 }
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            description: 'Champ de tri',
+            schema: {
+              type: 'string',
+              enum: ['nom', 'type', 'periodicite', 'echelle', 'prix']
+            }
+          },
+          {
+            name: 'order',
+            in: 'query',
+            description: 'Ordre de tri',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' }
           }
         ],
         responses: {
@@ -263,6 +278,28 @@ const baseSpec = {
             in: 'query',
             description: 'Résultats par page',
             schema: { type: 'integer', default: 20 }
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            description: 'Champ de tri',
+            schema: {
+              type: 'string',
+              enum: [
+                'nom',
+                'nbMedias',
+                'challenges2024',
+                'challenges2023',
+                'challenges2022',
+                'challenges2021'
+              ]
+            }
+          },
+          {
+            name: 'order',
+            in: 'query',
+            description: 'Ordre de tri',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' }
           }
         ],
         responses: {
@@ -444,6 +481,21 @@ const baseSpec = {
             in: 'query',
             description: 'Résultats par page',
             schema: { type: 'integer', default: 20 }
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            description: 'Champ de tri',
+            schema: {
+              type: 'string',
+              enum: ['nom', 'nbMedias', 'nbFiliales']
+            }
+          },
+          {
+            name: 'order',
+            in: 'query',
+            description: 'Ordre de tri',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' }
           }
         ],
         responses: {

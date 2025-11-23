@@ -1,7 +1,12 @@
 import { assertEquals, assertExists } from '@std/assert';
 import { clearData, setTestData } from '../../src/data/index.ts';
 import app from '../../src/app.ts';
-import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
+import {
+  API_BASE,
+  mockMedias,
+  mockOrganisations,
+  mockPersonnes
+} from '../setup.ts';
 
 function setup() {
   setTestData(mockMedias, mockPersonnes, mockOrganisations);
@@ -11,10 +16,10 @@ function cleanup() {
   clearData();
 }
 
-Deno.test('GET /api/medias - returns paginated list', async () => {
+Deno.test('GET /medias - returns paginated list', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias');
+    const res = await app.request(`${API_BASE}/medias`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -27,10 +32,10 @@ Deno.test('GET /api/medias - returns paginated list', async () => {
   }
 });
 
-Deno.test('GET /api/medias - accepts pagination params', async () => {
+Deno.test('GET /medias - accepts pagination params', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?page=1&limit=2');
+    const res = await app.request(`${API_BASE}/medias?page=1&limit=2`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -41,10 +46,10 @@ Deno.test('GET /api/medias - accepts pagination params', async () => {
   }
 });
 
-Deno.test('GET /api/medias - filters by type', async () => {
+Deno.test('GET /medias - filters by type', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?type=Télévision');
+    const res = await app.request(`${API_BASE}/medias?type=Télévision`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -57,10 +62,10 @@ Deno.test('GET /api/medias - filters by type', async () => {
   }
 });
 
-Deno.test('GET /api/medias - filters by prix', async () => {
+Deno.test('GET /medias - filters by prix', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?prix=Gratuit');
+    const res = await app.request(`${API_BASE}/medias?prix=Gratuit`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -73,10 +78,10 @@ Deno.test('GET /api/medias - filters by prix', async () => {
   }
 });
 
-Deno.test('GET /api/medias - filters by disparu', async () => {
+Deno.test('GET /medias - filters by disparu', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?disparu=true');
+    const res = await app.request(`${API_BASE}/medias?disparu=true`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -87,10 +92,10 @@ Deno.test('GET /api/medias - filters by disparu', async () => {
   }
 });
 
-Deno.test('GET /api/medias/search - searches by query', async () => {
+Deno.test('GET /medias/search - searches by query', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias/search?q=monde');
+    const res = await app.request(`${API_BASE}/medias/search?q=monde`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -102,10 +107,10 @@ Deno.test('GET /api/medias/search - searches by query', async () => {
   }
 });
 
-Deno.test('GET /api/medias/search - returns 400 for short query', async () => {
+Deno.test('GET /medias/search - returns 400 for short query', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias/search?q=a');
+    const res = await app.request(`${API_BASE}/medias/search?q=a`);
     const json = await res.json();
 
     assertEquals(res.status, 400);
@@ -115,10 +120,10 @@ Deno.test('GET /api/medias/search - returns 400 for short query', async () => {
   }
 });
 
-Deno.test('GET /api/medias/:nom - returns media details', async () => {
+Deno.test('GET /medias/:nom - returns media details', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias/Le%20Monde');
+    const res = await app.request(`${API_BASE}/medias/Le%20Monde`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -130,10 +135,10 @@ Deno.test('GET /api/medias/:nom - returns media details', async () => {
   }
 });
 
-Deno.test('GET /api/medias/:nom - returns 404 for non-existent media', async () => {
+Deno.test('GET /medias/:nom - returns 404 for non-existent media', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias/NonExistent');
+    const res = await app.request(`${API_BASE}/medias/NonExistent`);
     const json = await res.json();
 
     assertEquals(res.status, 404);
@@ -144,10 +149,12 @@ Deno.test('GET /api/medias/:nom - returns 404 for non-existent media', async () 
   }
 });
 
-Deno.test('GET /api/medias/:nom/proprietaires - returns direct owners', async () => {
+Deno.test('GET /medias/:nom/proprietaires - returns direct owners', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias/Le%20Monde/proprietaires');
+    const res = await app.request(
+      `${API_BASE}/medias/Le%20Monde/proprietaires`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -159,11 +166,11 @@ Deno.test('GET /api/medias/:nom/proprietaires - returns direct owners', async ()
   }
 });
 
-Deno.test('GET /api/medias/:nom/proprietaires-ultimes - returns ownership chain', async () => {
+Deno.test('GET /medias/:nom/proprietaires-ultimes - returns ownership chain', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/medias/Le%20Monde/proprietaires-ultimes'
+      `${API_BASE}/medias/Le%20Monde/proprietaires-ultimes`
     );
     const json = await res.json();
 
@@ -176,10 +183,10 @@ Deno.test('GET /api/medias/:nom/proprietaires-ultimes - returns ownership chain'
 });
 
 // Sorting tests
-Deno.test('GET /api/medias - sorts by nom ascending', async () => {
+Deno.test('GET /medias - sorts by nom ascending', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?sort=nom&order=asc');
+    const res = await app.request(`${API_BASE}/medias?sort=nom&order=asc`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -190,10 +197,10 @@ Deno.test('GET /api/medias - sorts by nom ascending', async () => {
   }
 });
 
-Deno.test('GET /api/medias - sorts by nom descending', async () => {
+Deno.test('GET /medias - sorts by nom descending', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?sort=nom&order=desc');
+    const res = await app.request(`${API_BASE}/medias?sort=nom&order=desc`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -204,10 +211,10 @@ Deno.test('GET /api/medias - sorts by nom descending', async () => {
   }
 });
 
-Deno.test('GET /api/medias - sorts by type', async () => {
+Deno.test('GET /medias - sorts by type', async () => {
   setup();
   try {
-    const res = await app.request('/api/medias?sort=type&order=asc');
+    const res = await app.request(`${API_BASE}/medias?sort=type&order=asc`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -221,11 +228,11 @@ Deno.test('GET /api/medias - sorts by type', async () => {
   }
 });
 
-Deno.test('GET /api/medias - sorting works with filters', async () => {
+Deno.test('GET /medias - sorting works with filters', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/medias?type=Télévision&sort=nom&order=asc'
+      `${API_BASE}/medias?type=Télévision&sort=nom&order=asc`
     );
     const json = await res.json();
 
@@ -238,11 +245,11 @@ Deno.test('GET /api/medias - sorting works with filters', async () => {
   }
 });
 
-Deno.test('GET /api/medias - sorting works with pagination', async () => {
+Deno.test('GET /medias - sorting works with pagination', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/medias?sort=nom&order=asc&page=1&limit=2'
+      `${API_BASE}/medias?sort=nom&order=asc&page=1&limit=2`
     );
     const json = await res.json();
 

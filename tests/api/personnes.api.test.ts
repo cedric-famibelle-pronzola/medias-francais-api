@@ -1,7 +1,12 @@
 import { assertEquals, assertExists } from '@std/assert';
 import { clearData, setTestData } from '../../src/data/index.ts';
 import app from '../../src/app.ts';
-import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
+import {
+  API_BASE,
+  mockMedias,
+  mockOrganisations,
+  mockPersonnes
+} from '../setup.ts';
 
 function setup() {
   setTestData(mockMedias, mockPersonnes, mockOrganisations);
@@ -11,10 +16,10 @@ function cleanup() {
   clearData();
 }
 
-Deno.test('GET /api/personnes - returns paginated list', async () => {
+Deno.test('GET /personnes - returns paginated list', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes');
+    const res = await app.request(`${API_BASE}/personnes`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -26,10 +31,10 @@ Deno.test('GET /api/personnes - returns paginated list', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - accepts pagination params', async () => {
+Deno.test('GET /personnes - accepts pagination params', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?page=1&limit=2');
+    const res = await app.request(`${API_BASE}/personnes?page=1&limit=2`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -40,10 +45,10 @@ Deno.test('GET /api/personnes - accepts pagination params', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - filters by forbes', async () => {
+Deno.test('GET /personnes - filters by forbes', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?forbes=true');
+    const res = await app.request(`${API_BASE}/personnes?forbes=true`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -58,10 +63,10 @@ Deno.test('GET /api/personnes - filters by forbes', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - filters by challenges_max', async () => {
+Deno.test('GET /personnes - filters by challenges_max', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?challenges_max=10');
+    const res = await app.request(`${API_BASE}/personnes?challenges_max=10`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -71,10 +76,10 @@ Deno.test('GET /api/personnes - filters by challenges_max', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - filters by has_medias', async () => {
+Deno.test('GET /personnes - filters by has_medias', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?has_medias=true');
+    const res = await app.request(`${API_BASE}/personnes?has_medias=true`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -84,10 +89,12 @@ Deno.test('GET /api/personnes - filters by has_medias', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - filters by annee', async () => {
+Deno.test('GET /personnes - filters by annee', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?forbes=true&annee=2023');
+    const res = await app.request(
+      `${API_BASE}/personnes?forbes=true&annee=2023`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -102,10 +109,10 @@ Deno.test('GET /api/personnes - filters by annee', async () => {
   }
 });
 
-Deno.test('GET /api/personnes/top-challenges - returns rankings', async () => {
+Deno.test('GET /personnes/top-challenges - returns rankings', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/top-challenges');
+    const res = await app.request(`${API_BASE}/personnes/top-challenges`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -118,10 +125,12 @@ Deno.test('GET /api/personnes/top-challenges - returns rankings', async () => {
   }
 });
 
-Deno.test('GET /api/personnes/top-challenges - accepts annee param', async () => {
+Deno.test('GET /personnes/top-challenges - accepts annee param', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/top-challenges?annee=2023');
+    const res = await app.request(
+      `${API_BASE}/personnes/top-challenges?annee=2023`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -131,10 +140,12 @@ Deno.test('GET /api/personnes/top-challenges - accepts annee param', async () =>
   }
 });
 
-Deno.test('GET /api/personnes/top-challenges - accepts limit param', async () => {
+Deno.test('GET /personnes/top-challenges - accepts limit param', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/top-challenges?limit=2');
+    const res = await app.request(
+      `${API_BASE}/personnes/top-challenges?limit=2`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -144,10 +155,10 @@ Deno.test('GET /api/personnes/top-challenges - accepts limit param', async () =>
   }
 });
 
-Deno.test('GET /api/personnes/:nom - returns personne details', async () => {
+Deno.test('GET /personnes/:nom - returns personne details', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/Xavier%20Niel');
+    const res = await app.request(`${API_BASE}/personnes/Xavier%20Niel`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -161,10 +172,10 @@ Deno.test('GET /api/personnes/:nom - returns personne details', async () => {
   }
 });
 
-Deno.test('GET /api/personnes/:nom - returns 404 for non-existent personne', async () => {
+Deno.test('GET /personnes/:nom - returns 404 for non-existent personne', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/John%20Doe');
+    const res = await app.request(`${API_BASE}/personnes/John%20Doe`);
     const json = await res.json();
 
     assertEquals(res.status, 404);
@@ -175,10 +186,10 @@ Deno.test('GET /api/personnes/:nom - returns 404 for non-existent personne', asy
   }
 });
 
-Deno.test('GET /api/personnes/:nom/medias - returns owned medias', async () => {
+Deno.test('GET /personnes/:nom/medias - returns owned medias', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/Xavier%20Niel/medias');
+    const res = await app.request(`${API_BASE}/personnes/Xavier%20Niel/medias`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -191,10 +202,12 @@ Deno.test('GET /api/personnes/:nom/medias - returns owned medias', async () => {
   }
 });
 
-Deno.test('GET /api/personnes/:nom/organisations - returns controlled orgs', async () => {
+Deno.test('GET /personnes/:nom/organisations - returns controlled orgs', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes/Xavier%20Niel/organisations');
+    const res = await app.request(
+      `${API_BASE}/personnes/Xavier%20Niel/organisations`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -207,10 +220,10 @@ Deno.test('GET /api/personnes/:nom/organisations - returns controlled orgs', asy
 });
 
 // Sorting tests
-Deno.test('GET /api/personnes - sorts by nom ascending', async () => {
+Deno.test('GET /personnes - sorts by nom ascending', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?sort=nom&order=asc');
+    const res = await app.request(`${API_BASE}/personnes?sort=nom&order=asc`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -221,10 +234,10 @@ Deno.test('GET /api/personnes - sorts by nom ascending', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - sorts by nom descending', async () => {
+Deno.test('GET /personnes - sorts by nom descending', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?sort=nom&order=desc');
+    const res = await app.request(`${API_BASE}/personnes?sort=nom&order=desc`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -235,11 +248,11 @@ Deno.test('GET /api/personnes - sorts by nom descending', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - sorts by challenges2024', async () => {
+Deno.test('GET /personnes - sorts by challenges2024', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/personnes?sort=challenges2024&order=asc'
+      `${API_BASE}/personnes?sort=challenges2024&order=asc`
     );
     const json = await res.json();
 
@@ -251,10 +264,12 @@ Deno.test('GET /api/personnes - sorts by challenges2024', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - sorts by nbMedias', async () => {
+Deno.test('GET /personnes - sorts by nbMedias', async () => {
   setup();
   try {
-    const res = await app.request('/api/personnes?sort=nbMedias&order=desc');
+    const res = await app.request(
+      `${API_BASE}/personnes?sort=nbMedias&order=desc`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -265,11 +280,11 @@ Deno.test('GET /api/personnes - sorts by nbMedias', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - sorting works with filters', async () => {
+Deno.test('GET /personnes - sorting works with filters', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/personnes?forbes=true&sort=challenges2024&order=asc'
+      `${API_BASE}/personnes?forbes=true&sort=challenges2024&order=asc`
     );
     const json = await res.json();
 
@@ -282,11 +297,11 @@ Deno.test('GET /api/personnes - sorting works with filters', async () => {
   }
 });
 
-Deno.test('GET /api/personnes - sorting works with pagination', async () => {
+Deno.test('GET /personnes - sorting works with pagination', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/personnes?sort=nom&order=asc&page=1&limit=2'
+      `${API_BASE}/personnes?sort=nom&order=asc&page=1&limit=2`
     );
     const json = await res.json();
 

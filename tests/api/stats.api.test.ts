@@ -1,7 +1,12 @@
 import { assertEquals, assertExists } from '@std/assert';
 import { clearData, setTestData } from '../../src/data/index.ts';
 import app from '../../src/app.ts';
-import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
+import {
+  API_BASE,
+  mockMedias,
+  mockOrganisations,
+  mockPersonnes
+} from '../setup.ts';
 
 function setup() {
   setTestData(mockMedias, mockPersonnes, mockOrganisations);
@@ -12,26 +17,31 @@ function cleanup() {
 }
 
 // Root endpoint tests
-Deno.test('GET /api - returns API info', async () => {
-  setup();
-  try {
-    const res = await app.request('/api');
-    const json = await res.json();
+// Note: When API_BASE_PATH is "/", the root serves Swagger UI, not API info
+Deno.test({
+  name: 'GET /api - returns API info',
+  ignore: API_BASE === '', // Skip when at root (Swagger UI takes precedence)
+  fn: async () => {
+    setup();
+    try {
+      const res = await app.request(API_BASE);
+      const json = await res.json();
 
-    assertEquals(res.status, 200);
-    assertEquals(json.name, 'Médias Français API');
-    assertExists(json.version);
-    assertExists(json.endpoints);
-  } finally {
-    cleanup();
+      assertEquals(res.status, 200);
+      assertEquals(json.name, 'Médias Français API');
+      assertExists(json.version);
+      assertExists(json.endpoints);
+    } finally {
+      cleanup();
+    }
   }
 });
 
 // Stats endpoints tests
-Deno.test('GET /api/stats - returns global statistics', async () => {
+Deno.test('GET /stats - returns global statistics', async () => {
   setup();
   try {
-    const res = await app.request('/api/stats');
+    const res = await app.request(`${API_BASE}/stats`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -44,10 +54,10 @@ Deno.test('GET /api/stats - returns global statistics', async () => {
   }
 });
 
-Deno.test('GET /api/stats - returns medias by type', async () => {
+Deno.test('GET /stats - returns medias by type', async () => {
   setup();
   try {
-    const res = await app.request('/api/stats');
+    const res = await app.request(`${API_BASE}/stats`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -58,10 +68,10 @@ Deno.test('GET /api/stats - returns medias by type', async () => {
   }
 });
 
-Deno.test('GET /api/stats - returns medias by prix', async () => {
+Deno.test('GET /stats - returns medias by prix', async () => {
   setup();
   try {
-    const res = await app.request('/api/stats');
+    const res = await app.request(`${API_BASE}/stats`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -73,10 +83,10 @@ Deno.test('GET /api/stats - returns medias by prix', async () => {
   }
 });
 
-Deno.test('GET /api/stats - returns medias disparus count', async () => {
+Deno.test('GET /stats - returns medias disparus count', async () => {
   setup();
   try {
-    const res = await app.request('/api/stats');
+    const res = await app.request(`${API_BASE}/stats`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -86,10 +96,10 @@ Deno.test('GET /api/stats - returns medias disparus count', async () => {
   }
 });
 
-Deno.test('GET /api/stats/concentration - returns concentration analysis', async () => {
+Deno.test('GET /stats/concentration - returns concentration analysis', async () => {
   setup();
   try {
-    const res = await app.request('/api/stats/concentration');
+    const res = await app.request(`${API_BASE}/stats/concentration`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -100,10 +110,10 @@ Deno.test('GET /api/stats/concentration - returns concentration analysis', async
   }
 });
 
-Deno.test('GET /api/stats/concentration - sorts by media count', async () => {
+Deno.test('GET /stats/concentration - sorts by media count', async () => {
   setup();
   try {
-    const res = await app.request('/api/stats/concentration');
+    const res = await app.request(`${API_BASE}/stats/concentration`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -120,10 +130,10 @@ Deno.test('GET /api/stats/concentration - sorts by media count', async () => {
 });
 
 // Référentiels endpoints tests
-Deno.test('GET /api/types - returns list of media types', async () => {
+Deno.test('GET /types - returns list of media types', async () => {
   setup();
   try {
-    const res = await app.request('/api/types');
+    const res = await app.request(`${API_BASE}/types`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -136,10 +146,10 @@ Deno.test('GET /api/types - returns list of media types', async () => {
   }
 });
 
-Deno.test('GET /api/echelles - returns list of geographic scales', async () => {
+Deno.test('GET /echelles - returns list of geographic scales', async () => {
   setup();
   try {
-    const res = await app.request('/api/echelles');
+    const res = await app.request(`${API_BASE}/echelles`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -153,10 +163,10 @@ Deno.test('GET /api/echelles - returns list of geographic scales', async () => {
 });
 
 // 404 handler test
-Deno.test('GET /api/unknown - returns 404', async () => {
+Deno.test('GET /unknown - returns 404', async () => {
   setup();
   try {
-    const res = await app.request('/api/unknown-route');
+    const res = await app.request(`${API_BASE}/unknown-route`);
     const json = await res.json();
 
     assertEquals(res.status, 404);

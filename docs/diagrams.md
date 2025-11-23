@@ -4,12 +4,22 @@ Diagrammes Mermaid pour comprendre l'architecture et le fonctionnement de l'API.
 
 ## Table des matières
 
-- [Architecture globale](#architecture-globale)
-- [Pipeline de données](#pipeline-de-données)
-- [Modèle de données](#modèle-de-données)
-- [Structure des routes API](#structure-des-routes-api)
-- [Flux d'une requête](#flux-dune-requête)
-- [Résolution de la chaîne de propriété](#résolution-de-la-chaîne-de-propriété)
+- [Diagrammes de l'API](#diagrammes-de-lapi)
+  - [Table des matières](#table-des-matières)
+  - [Architecture globale](#architecture-globale)
+  - [Pipeline de données](#pipeline-de-données)
+  - [Modèle de données](#modèle-de-données)
+    - [Structure des données enrichies](#structure-des-données-enrichies)
+  - [Structure des routes API](#structure-des-routes-api)
+    - [Détail des routes par ressource](#détail-des-routes-par-ressource)
+  - [Flux d'une requête](#flux-dune-requête)
+    - [Flux avec gestion d'erreur](#flux-avec-gestion-derreur)
+  - [Résolution de la chaîne de propriété](#résolution-de-la-chaîne-de-propriété)
+    - [Exemple concret](#exemple-concret)
+    - [Cas avec plusieurs propriétaires](#cas-avec-plusieurs-propriétaires)
+  - [Déploiement](#déploiement)
+  - [Middlewares](#middlewares)
+  - [Tests](#tests)
 
 ---
 
@@ -373,7 +383,7 @@ sequenceDiagram
     participant S as ⚙️ Service
     participant D as 💾 Data Store
 
-    C->>H: GET /api/medias?type=Télévision
+    C->>H: GET /medias?type=Télévision
     H->>RL: Vérifier limite
 
     alt Limite dépassée
@@ -399,7 +409,7 @@ sequenceDiagram
     participant R as 🔀 Router
     participant S as ⚙️ Service
 
-    C->>H: GET /api/medias/MediaInexistant
+    C->>H: GET /medias/MediaInexistant
     H->>R: Route /:nom
     R->>S: getMediaByNom("MediaInexistant")
     S-->>R: null

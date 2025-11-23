@@ -4,6 +4,10 @@ import {
   PersonneEnrichie
 } from '../src/data/index.ts';
 
+// API base path helper - default must match app.ts
+const basePath = Deno.env.get('API_BASE_PATH') || '/';
+export const API_BASE = basePath === '/' ? '' : basePath;
+
 // Mock data for testing
 export const mockMedias: MediaEnrichi[] = [
   {

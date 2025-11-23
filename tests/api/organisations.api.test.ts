@@ -1,7 +1,12 @@
 import { assertEquals, assertExists } from '@std/assert';
 import { clearData, setTestData } from '../../src/data/index.ts';
 import app from '../../src/app.ts';
-import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
+import {
+  API_BASE,
+  mockMedias,
+  mockOrganisations,
+  mockPersonnes
+} from '../setup.ts';
 
 function setup() {
   setTestData(mockMedias, mockPersonnes, mockOrganisations);
@@ -11,10 +16,10 @@ function cleanup() {
   clearData();
 }
 
-Deno.test('GET /api/organisations - returns paginated list', async () => {
+Deno.test('GET /organisations - returns paginated list', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations');
+    const res = await app.request(`${API_BASE}/organisations`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -26,10 +31,10 @@ Deno.test('GET /api/organisations - returns paginated list', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - accepts pagination params', async () => {
+Deno.test('GET /organisations - accepts pagination params', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations?page=1&limit=2');
+    const res = await app.request(`${API_BASE}/organisations?page=1&limit=2`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -40,10 +45,10 @@ Deno.test('GET /api/organisations - accepts pagination params', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - filters by has_medias', async () => {
+Deno.test('GET /organisations - filters by has_medias', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations?has_medias=true');
+    const res = await app.request(`${API_BASE}/organisations?has_medias=true`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -57,10 +62,12 @@ Deno.test('GET /api/organisations - filters by has_medias', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - filters by has_filiales', async () => {
+Deno.test('GET /organisations - filters by has_filiales', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations?has_filiales=true');
+    const res = await app.request(
+      `${API_BASE}/organisations?has_filiales=true`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -71,10 +78,10 @@ Deno.test('GET /api/organisations - filters by has_filiales', async () => {
   }
 });
 
-Deno.test('GET /api/organisations/:nom - returns organisation details', async () => {
+Deno.test('GET /organisations/:nom - returns organisation details', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations/Vivendi');
+    const res = await app.request(`${API_BASE}/organisations/Vivendi`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -87,10 +94,10 @@ Deno.test('GET /api/organisations/:nom - returns organisation details', async ()
   }
 });
 
-Deno.test('GET /api/organisations/:nom - returns 404 for non-existent org', async () => {
+Deno.test('GET /organisations/:nom - returns 404 for non-existent org', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations/NonExistent');
+    const res = await app.request(`${API_BASE}/organisations/NonExistent`);
     const json = await res.json();
 
     assertEquals(res.status, 404);
@@ -101,10 +108,10 @@ Deno.test('GET /api/organisations/:nom - returns 404 for non-existent org', asyn
   }
 });
 
-Deno.test('GET /api/organisations/:nom/filiales - returns subsidiaries', async () => {
+Deno.test('GET /organisations/:nom/filiales - returns subsidiaries', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations/Vivendi/filiales');
+    const res = await app.request(`${API_BASE}/organisations/Vivendi/filiales`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -116,10 +123,10 @@ Deno.test('GET /api/organisations/:nom/filiales - returns subsidiaries', async (
   }
 });
 
-Deno.test('GET /api/organisations/:nom/medias - returns owned medias', async () => {
+Deno.test('GET /organisations/:nom/medias - returns owned medias', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations/Vivendi/medias');
+    const res = await app.request(`${API_BASE}/organisations/Vivendi/medias`);
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -131,10 +138,12 @@ Deno.test('GET /api/organisations/:nom/medias - returns owned medias', async () 
   }
 });
 
-Deno.test('GET /api/organisations/:nom/hierarchie - returns full hierarchy', async () => {
+Deno.test('GET /organisations/:nom/hierarchie - returns full hierarchy', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations/Vivendi/hierarchie');
+    const res = await app.request(
+      `${API_BASE}/organisations/Vivendi/hierarchie`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -149,10 +158,12 @@ Deno.test('GET /api/organisations/:nom/hierarchie - returns full hierarchy', asy
 });
 
 // Sorting tests
-Deno.test('GET /api/organisations - sorts by nom ascending', async () => {
+Deno.test('GET /organisations - sorts by nom ascending', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations?sort=nom&order=asc');
+    const res = await app.request(
+      `${API_BASE}/organisations?sort=nom&order=asc`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -163,10 +174,12 @@ Deno.test('GET /api/organisations - sorts by nom ascending', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - sorts by nom descending', async () => {
+Deno.test('GET /organisations - sorts by nom descending', async () => {
   setup();
   try {
-    const res = await app.request('/api/organisations?sort=nom&order=desc');
+    const res = await app.request(
+      `${API_BASE}/organisations?sort=nom&order=desc`
+    );
     const json = await res.json();
 
     assertEquals(res.status, 200);
@@ -177,11 +190,11 @@ Deno.test('GET /api/organisations - sorts by nom descending', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - sorts by nbMedias', async () => {
+Deno.test('GET /organisations - sorts by nbMedias', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/organisations?sort=nbMedias&order=desc'
+      `${API_BASE}/organisations?sort=nbMedias&order=desc`
     );
     const json = await res.json();
 
@@ -196,11 +209,11 @@ Deno.test('GET /api/organisations - sorts by nbMedias', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - sorts by nbFiliales', async () => {
+Deno.test('GET /organisations - sorts by nbFiliales', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/organisations?sort=nbFiliales&order=desc'
+      `${API_BASE}/organisations?sort=nbFiliales&order=desc`
     );
     const json = await res.json();
 
@@ -212,11 +225,11 @@ Deno.test('GET /api/organisations - sorts by nbFiliales', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - sorting works with filters', async () => {
+Deno.test('GET /organisations - sorting works with filters', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/organisations?has_medias=true&sort=nom&order=asc'
+      `${API_BASE}/organisations?has_medias=true&sort=nom&order=asc`
     );
     const json = await res.json();
 
@@ -229,11 +242,11 @@ Deno.test('GET /api/organisations - sorting works with filters', async () => {
   }
 });
 
-Deno.test('GET /api/organisations - sorting works with pagination', async () => {
+Deno.test('GET /organisations - sorting works with pagination', async () => {
   setup();
   try {
     const res = await app.request(
-      '/api/organisations?sort=nom&order=asc&page=1&limit=2'
+      `${API_BASE}/organisations?sort=nom&order=asc&page=1&limit=2`
     );
     const json = await res.json();
 

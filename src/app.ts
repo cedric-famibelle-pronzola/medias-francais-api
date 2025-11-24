@@ -96,23 +96,6 @@ app.get('/health', (c) => {
   );
 });
 
-// Root endpoint
-api.get('/', (c) =>
-  c.json({
-    name: 'Médias Français API',
-    version: '1.0.0',
-    description: 'API sur la propriété des médias français',
-    documentation: '/',
-    endpoints: {
-      medias: `${API_BASE_PATH}/medias`,
-      personnes: `${API_BASE_PATH}/personnes`,
-      organisations: `${API_BASE_PATH}/organisations`,
-      stats: `${API_BASE_PATH}/stats`,
-      types: `${API_BASE_PATH}/types`,
-      echelles: `${API_BASE_PATH}/echelles`
-    }
-  }));
-
 // Routes
 api.route('/medias', mediasRouter);
 api.route('/personnes', personnesRouter);

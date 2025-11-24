@@ -39,7 +39,7 @@ flowchart TB
     end
 
     subgraph Data["💾 Données"]
-        JSON1[("dist/json/<br/>(données brutes)")]
+        JSON1[("dist/main/ + dist/detailed/<br/>(données brutes)")]
         JSON2[("dist/enriched/<br/>(données enrichies)")]
     end
 
@@ -107,12 +107,19 @@ flowchart TB
         F3[Conversion en JSON]
     end
 
-    subgraph JSON["📦 dist/json/"]
-        direction LR
-        J1[medias.json]
-        J2[personnes.json]
-        J3[organisations.json]
-        J4[relations.json]
+    subgraph JSON["📦 dist/"]
+        direction TB
+        subgraph Main["main/"]
+            J1[medias.json]
+            J2[personnes.json]
+            J3[organisations.json]
+        end
+        subgraph Detailed["detailed/"]
+            J4[personne-media.json]
+            J5[personne-organisation.json]
+            J6[organisation-media.json]
+            J7[organisation-organisation.json]
+        end
     end
 
     subgraph Enrich["✨ enrich.ts"]
@@ -148,7 +155,10 @@ flowchart TB
     style J1 fill:#8b5cf6,stroke:#7c3aed,color:#fff
     style J2 fill:#8b5cf6,stroke:#7c3aed,color:#fff
     style J3 fill:#8b5cf6,stroke:#7c3aed,color:#fff
-    style J4 fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style J4 fill:#a78bfa,stroke:#8b5cf6,color:#fff
+    style J5 fill:#a78bfa,stroke:#8b5cf6,color:#fff
+    style J6 fill:#a78bfa,stroke:#8b5cf6,color:#fff
+    style J7 fill:#a78bfa,stroke:#8b5cf6,color:#fff
     style E1 fill:#14b8a6,stroke:#0d9488,color:#fff
     style E2 fill:#14b8a6,stroke:#0d9488,color:#fff
     style E3 fill:#14b8a6,stroke:#0d9488,color:#fff
@@ -260,13 +270,14 @@ Organisation hiérarchique des endpoints.
 
 ```mermaid
 flowchart TB
-    subgraph Root["🌐 / (racine)"]
-        DOCS["/<br/>Swagger UI"]
-        SPEC["/openapi.json<br/>Spécification OpenAPI"]
-    end
-
-    subgraph API["📡 /api"]
+    subgraph Root["🌐 Routes API"]
         direction TB
+
+        DOCS["GET /<br/>Swagger UI"]
+        SPEC["GET /openapi.json<br/>Spécification OpenAPI"]
+        HEALTH["GET /health<br/>Health check"]
+        ROBOTS["GET /robots.txt<br/>Robots"]
+        FAVICON["GET /favicon.ico<br/>Favicon"]
 
         subgraph Medias["📺 /medias"]
             M1["GET /<br/>Liste paginée"]
@@ -303,10 +314,11 @@ flowchart TB
         end
     end
 
-    Root --> API
-
     style DOCS fill:#6366f1,stroke:#4f46e5,color:#fff
     style SPEC fill:#6366f1,stroke:#4f46e5,color:#fff
+    style HEALTH fill:#6366f1,stroke:#4f46e5,color:#fff
+    style ROBOTS fill:#6366f1,stroke:#4f46e5,color:#fff
+    style FAVICON fill:#6366f1,stroke:#4f46e5,color:#fff
     style M1 fill:#3b82f6,stroke:#2563eb,color:#fff
     style M2 fill:#3b82f6,stroke:#2563eb,color:#fff
     style M3 fill:#3b82f6,stroke:#2563eb,color:#fff
@@ -539,8 +551,6 @@ flowchart LR
 
     subgraph Users["🌍 Utilisateurs"]
         EU[Europe]
-        US[Amérique]
-        AS[Asie]
     end
 
     CODE --> PRE
@@ -558,8 +568,6 @@ flowchart LR
     style DEPLOY fill:#10b981,stroke:#059669,color:#fff
     style EDGE fill:#06b6d4,stroke:#0891b2,color:#fff
     style EU fill:#ec4899,stroke:#db2777,color:#fff
-    style US fill:#ec4899,stroke:#db2777,color:#fff
-    style AS fill:#ec4899,stroke:#db2777,color:#fff
 ```
 
 ---
@@ -602,21 +610,21 @@ Structure des tests du projet.
 
 ```mermaid
 flowchart TB
-    subgraph Tests["🧪 Suite de tests (91 tests)"]
+    subgraph Tests["🧪 Suite de tests (129 tests)"]
         direction TB
 
-        subgraph Services["⚙️ Tests Services (48)"]
-            TS1[medias.service.test.ts<br/>15 tests]
-            TS2[personnes.service.test.ts<br/>14 tests]
-            TS3[organisations.service.test.ts<br/>11 tests]
+        subgraph Services["⚙️ Tests Services (69)"]
+            TS1[medias.service.test.ts<br/>22 tests]
+            TS2[personnes.service.test.ts<br/>21 tests]
+            TS3[organisations.service.test.ts<br/>18 tests]
             TS4[stats.service.test.ts<br/>8 tests]
         end
 
-        subgraph API["📡 Tests API (43)"]
-            TA1[medias.api.test.ts<br/>11 tests]
-            TA2[personnes.api.test.ts<br/>13 tests]
-            TA3[organisations.api.test.ts<br/>9 tests]
-            TA4[stats.api.test.ts<br/>10 tests]
+        subgraph API["📡 Tests API (60)"]
+            TA1[medias.api.test.ts<br/>16 tests]
+            TA2[personnes.api.test.ts<br/>19 tests]
+            TA3[organisations.api.test.ts<br/>15 tests]
+            TA4[stats.api.test.ts<br/>10 tests - 1 ignoré]
         end
     end
 

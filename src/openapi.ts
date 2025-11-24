@@ -4,7 +4,7 @@ const baseSpec = {
   info: {
     title: 'Médias Français API',
     description:
-      'API sur la propriété des médias français. Données issues du projet mdiplo/Medias_francais.',
+      'API sur la propriété des médias français. Données issues du projet mdiplo/Medias_francais (Mise à jour en décembre 2024).',
     version: '1.0.0',
     contact: {
       name: 'API Support'

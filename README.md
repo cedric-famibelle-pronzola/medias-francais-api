@@ -17,7 +17,7 @@ API exposant les données de propriété des médias français.
 
 Les données proviennent du dépôt
 [Médias français](https://github.com/mdiplo/Medias_francais) du Monde
-diplomatique.
+diplomatique (Mise à jour en décembre 2024).
 
 Les données sont organisées en sept tableaux :
 

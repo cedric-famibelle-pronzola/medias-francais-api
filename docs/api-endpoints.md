@@ -29,7 +29,25 @@ Liste tous les médias avec pagination et filtres.
 | `echelle` | string  | Filtrer par échelle : `National`, `Régional`, `Europe`, `Suisse` |
 | `disparu` | boolean | Filtrer les médias disparus                                      |
 | `page`    | number  | Numéro de page (défaut: 1)                                       |
-| `limit`   | number  | Nombre de résultats par page (défaut: 20)                        |
+| `limit`   | number  | Nombre de résultats par page (défaut: 20, max: 100)              |
+| `sort`    | string  | Champ de tri : `nom`, `type`, `prix`, `echelle`                  |
+| `order`   | string  | Ordre de tri : `asc` (croissant), `desc` (décroissant)           |
+
+**Exemples de requêtes avec tri :**
+
+```
+# Trier par nom en ordre alphabétique
+GET /medias?sort=nom&order=asc
+
+# Trier par type en ordre décroissant
+GET /medias?sort=type&order=desc
+
+# Combiner filtres et tri
+GET /medias?prix=Payant&sort=nom&order=asc&page=1&limit=20
+```
+
+> ⚠️ **Note** : Le paramètre `sort` est requis pour activer le tri. Le paramètre
+> `order` seul (sans `sort`) n'a aucun effet.
 
 **Exemple de réponse :**
 
@@ -204,14 +222,29 @@ Liste toutes les personnes avec filtres.
 
 **Query Parameters :**
 
-| Paramètre        | Type    | Description                                         |
-| ---------------- | ------- | --------------------------------------------------- |
-| `forbes`         | boolean | Filtrer les milliardaires Forbes                    |
-| `challenges_max` | number  | Rang maximum Challenges (ex: 100 pour top 100)      |
-| `annee`          | number  | Année de référence : `2021`, `2022`, `2023`, `2024` |
-| `has_medias`     | boolean | Possède au moins un média                           |
-| `page`           | number  | Numéro de page                                      |
-| `limit`          | number  | Résultats par page                                  |
+| Paramètre        | Type    | Description                                            |
+| ---------------- | ------- | ------------------------------------------------------ |
+| `forbes`         | boolean | Filtrer les milliardaires Forbes                       |
+| `challenges_max` | number  | Rang maximum Challenges (ex: 100 pour top 100)         |
+| `annee`          | number  | Année de référence : `2021`, `2022`, `2023`, `2024`    |
+| `has_medias`     | boolean | Possède au moins un média                              |
+| `page`           | number  | Numéro de page (défaut: 1)                             |
+| `limit`          | number  | Résultats par page (défaut: 20, max: 100)              |
+| `sort`           | string  | Champ de tri : `nom`, `challenges2024`, `nbMedias`     |
+| `order`          | string  | Ordre de tri : `asc` (croissant), `desc` (décroissant) |
+
+**Exemples de requêtes avec tri :**
+
+```
+# Trier par nom en ordre alphabétique
+GET /personnes?sort=nom&order=asc
+
+# Trier par nombre de médias (décroissant)
+GET /personnes?sort=nbMedias&order=desc
+
+# Trier les milliardaires Forbes par classement Challenges
+GET /personnes?forbes=true&sort=challenges2024&order=asc
+```
 
 **Exemple de réponse :**
 
@@ -394,12 +427,27 @@ Liste toutes les organisations avec filtres.
 
 **Query Parameters :**
 
-| Paramètre      | Type    | Description                  |
-| -------------- | ------- | ---------------------------- |
-| `has_medias`   | boolean | Possède au moins un média    |
-| `has_filiales` | boolean | Possède au moins une filiale |
-| `page`         | number  | Numéro de page               |
-| `limit`        | number  | Résultats par page           |
+| Paramètre      | Type    | Description                                            |
+| -------------- | ------- | ------------------------------------------------------ |
+| `has_medias`   | boolean | Possède au moins un média                              |
+| `has_filiales` | boolean | Possède au moins une filiale                           |
+| `page`         | number  | Numéro de page (défaut: 1)                             |
+| `limit`        | number  | Résultats par page (défaut: 20, max: 100)              |
+| `sort`         | string  | Champ de tri : `nom`, `nbMedias`, `nbFiliales`         |
+| `order`        | string  | Ordre de tri : `asc` (croissant), `desc` (décroissant) |
+
+**Exemples de requêtes avec tri :**
+
+```
+# Trier par nom en ordre alphabétique
+GET /organisations?sort=nom&order=asc
+
+# Trier par nombre de médias (décroissant)
+GET /organisations?sort=nbMedias&order=desc
+
+# Trier par nombre de filiales
+GET /organisations?sort=nbFiliales&order=desc
+```
 
 **Exemple de réponse :**
 
@@ -676,11 +724,14 @@ Liste des échelles géographiques.
 
 ## Rate Limiting
 
-L'API est protégée par un rate limiter pour éviter les abus.
+L'API est protégée par un rate limiter différencié pour éviter les abus.
 
 **Configuration :**
 
-- **100 requêtes par minute** par adresse IP
+- **Endpoints de recherche** (`/*/search`) : **20 requêtes par minute** par
+  adresse IP
+- **Autres endpoints API** : **60 requêtes par minute** par adresse IP
+- Endpoints exclus : `/health`, `/favicon.ico`, `/robots.txt`
 - Fenêtre glissante de 60 secondes
 
 **Headers de réponse :**
@@ -697,7 +748,8 @@ L'API est protégée par un rate limiter pour éviter les abus.
 ```json
 {
   "error": {
-    "code": 429,
+    "id": "a7f5c8e3-2b4d-4f9a-8c6e-1d3b5a7f9c2e",
+    "code": "RATE_LIMIT_EXCEEDED",
     "message": "Trop de requêtes, veuillez réessayer plus tard."
   }
 }
@@ -724,11 +776,55 @@ L'API est protégée par un rate limiter pour éviter les abus.
 
 ## Format d'erreur
 
+Toutes les erreurs retournent un format structuré avec un ID unique pour le
+tracking.
+
+**Structure :**
+
 ```json
 {
   "error": {
-    "code": 404,
-    "message": "Média 'XYZ' non trouvé"
+    "id": "uuid-unique",
+    "code": "ERROR_CODE",
+    "message": "Description de l'erreur"
+  }
+}
+```
+
+**Codes d'erreur :**
+
+| Code                  | HTTP | Description                 |
+| --------------------- | ---- | --------------------------- |
+| `NOT_FOUND`           | 404  | Ressource non trouvée       |
+| `VALIDATION_ERROR`    | 400  | Paramètres invalides        |
+| `BAD_REQUEST`         | 400  | Requête malformée           |
+| `RATE_LIMIT_EXCEEDED` | 429  | Limite de requêtes dépassée |
+| `INTERNAL_ERROR`      | 500  | Erreur serveur interne      |
+
+**Exemples :**
+
+```json
+// Ressource non trouvée
+{
+  "error": {
+    "id": "a7f5c8e3-2b4d-4f9a-8c6e-1d3b5a7f9c2e",
+    "code": "NOT_FOUND",
+    "message": "Média 'XYZ' non trouvé",
+    "details": {
+      "resource": "media"
+    }
+  }
+}
+
+// Validation error
+{
+  "error": {
+    "id": "b8e6d9f4-3c5e-5g0b-9d7f-2e4c6b8a0d1f",
+    "code": "VALIDATION_ERROR",
+    "message": "Query must be at least 2 characters long",
+    "details": {
+      "field": "q"
+    }
   }
 }
 ```

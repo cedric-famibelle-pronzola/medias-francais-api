@@ -70,9 +70,10 @@ Une fois le serveur lancé, la documentation Swagger est disponible à :
 
 ### Rate Limiting
 
-L'API est protégée par un rate limiter :
+L'API est protégée par un rate limiter différencié :
 
-- **60 requêtes par minute** par adresse IP
+- **Endpoints de recherche** : **20 requêtes par minute** par adresse IP
+- **Autres endpoints** : **60 requêtes par minute** par adresse IP
 - Headers de réponse : `X-RateLimit-Limit`, `X-RateLimit-Remaining`,
   `X-RateLimit-Reset`
 - Code **429** en cas de dépassement

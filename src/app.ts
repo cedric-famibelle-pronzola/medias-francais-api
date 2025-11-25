@@ -34,6 +34,28 @@ app.use('*', prettyJSON());
 
 // CORS configuration
 const isDevelopment = Deno.env.get('ENVIRONMENT') !== 'production';
+
+// Build allowed origins from environment variable
+function buildAllowedOrigins(): (string | RegExp)[] {
+  const domainsEnv = Deno.env.get('CORS_ALLOWED_ORIGINS') ||
+    'medias-francais.fr';
+  const domains = domainsEnv.split(',').map((d) => d.trim()).filter(Boolean);
+
+  const allowedOrigins: (string | RegExp)[] = [];
+
+  for (const domain of domains) {
+    // Add https://domain
+    allowedOrigins.push(`https://${domain}`);
+    // Add https://www.domain
+    allowedOrigins.push(`https://www.${domain}`);
+    // Add regex for all subdomains: https://*.domain
+    const escapedDomain = domain.replace(/\./g, '\\.');
+    allowedOrigins.push(new RegExp(`^https:\\/\\/.*\\.${escapedDomain}$`));
+  }
+
+  return allowedOrigins;
+}
+
 app.use(
   '*',
   cors({
@@ -44,11 +66,7 @@ app.use(
       }
 
       // In production, whitelist specific domains
-      const allowedOrigins = [
-        'https://medias-francais.fr',
-        'https://www.medias-francais.fr',
-        /^https:\/\/.*\.medias-francais\.fr$/ // All subdomains
-      ];
+      const allowedOrigins = buildAllowedOrigins();
 
       // Check if origin is allowed
       const isAllowed = allowedOrigins.some((allowed) => {
@@ -56,7 +74,12 @@ app.use(
         return allowed.test(origin);
       });
 
-      return isAllowed ? origin : allowedOrigins[0] as string;
+      // Return origin if allowed, otherwise return first allowed origin
+      if (isAllowed) return origin;
+
+      // Find first string origin as fallback
+      const fallback = allowedOrigins.find((o) => typeof o === 'string');
+      return fallback as string;
     },
     allowMethods: ['GET', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'X-Requested-With'],

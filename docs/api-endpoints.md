@@ -2,6 +2,10 @@
 
 Documentation des endpoints pour l'API Hono.
 
+> 💡 **Besoin d'exemples pratiques ?** Consultez
+> [Exemples de requêtes (curl/httpie)](./exemples-requetes.md) pour des exemples
+> concrets et prêts à l'emploi.
+
 ## Base URL
 
 ```

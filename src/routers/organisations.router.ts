@@ -1,21 +1,36 @@
 import { Hono } from '@hono/hono';
 import { organisationsService } from '../services/organisations.service.ts';
+import { NotFoundError } from '../errors.ts';
+import {
+  validateBoolean,
+  validateOrder,
+  validatePagination,
+  validateSort
+} from '../utils/validators.ts';
+import { sanitizeResourceName } from '../utils/sanitizer.ts';
 
 export const organisationsRouter = new Hono();
 
 // GET /organisations - List all organisations with filters
 organisationsRouter.get('/', (c) => {
-  const hasMedias = c.req.query('has_medias');
-  const hasFiliales = c.req.query('has_filiales');
-  const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
-  const sort = c.req.query('sort');
-  const order = c.req.query('order') as 'asc' | 'desc' | undefined;
+  // Validate pagination
+  const { page, limit } = validatePagination(
+    c.req.query('page'),
+    c.req.query('limit')
+  );
+
+  // Validate sorting
+  const sort = validateSort(c.req.query('sort'), 'organisations');
+  const order = validateOrder(c.req.query('order'));
+
+  // Validate boolean filters
+  const hasMedias = validateBoolean(c.req.query('has_medias'));
+  const hasFiliales = validateBoolean(c.req.query('has_filiales'));
 
   const result = organisationsService.all(
     {
-      hasMedias: hasMedias ? hasMedias === 'true' : undefined,
-      hasFiliales: hasFiliales ? hasFiliales === 'true' : undefined
+      hasMedias,
+      hasFiliales
     },
     { page, limit },
     { sort, order }
@@ -26,13 +41,13 @@ organisationsRouter.get('/', (c) => {
 
 // GET /organisations/:nom - Get organisation by name
 organisationsRouter.get('/:nom', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const organisation = organisationsService.findByNom(nom);
 
   if (!organisation) {
-    return c.json(
-      { error: { code: 404, message: `Organisation '${nom}' non trouvée` } },
-      404
+    throw new NotFoundError(
+      `Organisation '${nom}' non trouvée`,
+      'organisation'
     );
   }
 
@@ -41,13 +56,13 @@ organisationsRouter.get('/:nom', (c) => {
 
 // GET /organisations/:nom/filiales - Get subsidiaries
 organisationsRouter.get('/:nom/filiales', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const organisation = organisationsService.findByNom(nom);
 
   if (!organisation) {
-    return c.json(
-      { error: { code: 404, message: `Organisation '${nom}' non trouvée` } },
-      404
+    throw new NotFoundError(
+      `Organisation '${nom}' non trouvée`,
+      'organisation'
     );
   }
 
@@ -59,13 +74,13 @@ organisationsRouter.get('/:nom/filiales', (c) => {
 
 // GET /organisations/:nom/medias - Get medias owned by organisation
 organisationsRouter.get('/:nom/medias', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const organisation = organisationsService.findByNom(nom);
 
   if (!organisation) {
-    return c.json(
-      { error: { code: 404, message: `Organisation '${nom}' non trouvée` } },
-      404
+    throw new NotFoundError(
+      `Organisation '${nom}' non trouvée`,
+      'organisation'
     );
   }
 
@@ -77,13 +92,13 @@ organisationsRouter.get('/:nom/medias', (c) => {
 
 // GET /organisations/:nom/hierarchie - Get full hierarchy
 organisationsRouter.get('/:nom/hierarchie', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const organisation = organisationsService.findByNom(nom);
 
   if (!organisation) {
-    return c.json(
-      { error: { code: 404, message: `Organisation '${nom}' non trouvée` } },
-      404
+    throw new NotFoundError(
+      `Organisation '${nom}' non trouvée`,
+      'organisation'
     );
   }
 

@@ -1,25 +1,47 @@
 import { Hono } from '@hono/hono';
 import { personnesService } from '../services/personnes.service.ts';
+import { NotFoundError, ValidationError } from '../errors.ts';
+import {
+  validateBoolean,
+  validateOrder,
+  validatePagination,
+  validateSort
+} from '../utils/validators.ts';
+import { sanitizeResourceName } from '../utils/sanitizer.ts';
 
 export const personnesRouter = new Hono();
 
 // GET /personnes - List all persons with filters
 personnesRouter.get('/', (c) => {
-  const forbes = c.req.query('forbes');
-  const challengesMax = c.req.query('challenges_max');
-  const annee = c.req.query('annee');
-  const hasMedias = c.req.query('has_medias');
-  const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
-  const sort = c.req.query('sort');
-  const order = c.req.query('order') as 'asc' | 'desc' | undefined;
+  // Validate pagination
+  const { page, limit } = validatePagination(
+    c.req.query('page'),
+    c.req.query('limit')
+  );
+
+  // Validate sorting
+  const sort = validateSort(c.req.query('sort'), 'personnes');
+  const order = validateOrder(c.req.query('order'));
+
+  // Validate boolean filters
+  const forbes = validateBoolean(c.req.query('forbes'));
+  const hasMedias = validateBoolean(c.req.query('has_medias'));
+
+  // Parse numeric filters
+  const challengesMaxStr = c.req.query('challenges_max');
+  const challengesMax = challengesMaxStr
+    ? parseInt(challengesMaxStr)
+    : undefined;
+
+  const anneeStr = c.req.query('annee');
+  const annee = anneeStr ? parseInt(anneeStr) : undefined;
 
   const result = personnesService.all(
     {
-      forbes: forbes ? forbes === 'true' : undefined,
-      challengesMax: challengesMax ? parseInt(challengesMax) : undefined,
-      annee: annee ? parseInt(annee) : undefined,
-      hasMedias: hasMedias ? hasMedias === 'true' : undefined
+      forbes,
+      challengesMax,
+      annee,
+      hasMedias
     },
     { page, limit },
     { sort, order }
@@ -30,12 +52,18 @@ personnesRouter.get('/', (c) => {
 
 // GET /personnes/top-challenges - Get top Challenges ranking
 personnesRouter.get('/top-challenges', (c) => {
-  const annee = parseInt(c.req.query('annee') || '2024') as
-    | 2021
-    | 2022
-    | 2023
-    | 2024;
-  const limit = parseInt(c.req.query('limit') || '10');
+  const anneeStr = c.req.query('annee') || '2024';
+  const annee = parseInt(anneeStr) as 2021 | 2022 | 2023 | 2024;
+
+  // Validate year
+  if (![2021, 2022, 2023, 2024].includes(annee)) {
+    throw new ValidationError(
+      'Year must be 2021, 2022, 2023, or 2024',
+      'annee'
+    );
+  }
+
+  const { limit } = validatePagination(undefined, c.req.query('limit') || '10');
 
   const classement = personnesService.topChallenges(annee, limit);
 
@@ -47,14 +75,11 @@ personnesRouter.get('/top-challenges', (c) => {
 
 // GET /personnes/:nom - Get person by name
 personnesRouter.get('/:nom', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const personne = personnesService.findByNom(nom);
 
   if (!personne) {
-    return c.json(
-      { error: { code: 404, message: `Personne '${nom}' non trouvée` } },
-      404
-    );
+    throw new NotFoundError(`Personne '${nom}' non trouvée`, 'personne');
   }
 
   return c.json(personne);
@@ -62,14 +87,11 @@ personnesRouter.get('/:nom', (c) => {
 
 // GET /personnes/:nom/medias - Get all medias owned by person
 personnesRouter.get('/:nom/medias', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const personne = personnesService.findByNom(nom);
 
   if (!personne) {
-    return c.json(
-      { error: { code: 404, message: `Personne '${nom}' non trouvée` } },
-      404
-    );
+    throw new NotFoundError(`Personne '${nom}' non trouvée`, 'personne');
   }
 
   return c.json({
@@ -83,14 +105,11 @@ personnesRouter.get('/:nom/medias', (c) => {
 
 // GET /personnes/:nom/organisations - Get organisations controlled by person
 personnesRouter.get('/:nom/organisations', (c) => {
-  const nom = decodeURIComponent(c.req.param('nom'));
+  const nom = sanitizeResourceName(c.req.param('nom'));
   const personne = personnesService.findByNom(nom);
 
   if (!personne) {
-    return c.json(
-      { error: { code: 404, message: `Personne '${nom}' non trouvée` } },
-      404
-    );
+    throw new NotFoundError(`Personne '${nom}' non trouvée`, 'personne');
   }
 
   return c.json({

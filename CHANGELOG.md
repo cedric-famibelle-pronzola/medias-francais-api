@@ -135,8 +135,6 @@ and this project adheres to
 
 ## Links
 
-- [1.0.1 Detailed Changes](./RECAPITULATIF-AMELIORATIONS-CRITIQUES.md)
-- [Improvement Axes](./AXES-AMELIORATIONS.md)
 - [API Documentation](./docs/api-endpoints.md)
 
 ---

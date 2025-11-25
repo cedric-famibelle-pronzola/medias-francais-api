@@ -19,6 +19,12 @@ sudo apt install curl
 sudo dnf install curl
 ```
 
+**Linux (Arch Linux)**
+
+```bash
+sudo pacman -S curl
+```
+
 **macOS**
 
 ```bash
@@ -37,17 +43,37 @@ winget install curl.curl
 
 ### Installation de httpie
 
-**Linux**
+**Linux (Debian/Ubuntu)**
 
 ```bash
-# Via pip
-pip install httpie
-
-# Via apt (Ubuntu/Debian)
+# Via apt
 sudo apt install httpie
 
 # Via snap
 sudo snap install httpie
+
+# Via pip
+pip install httpie
+```
+
+**Linux (Fedora/RHEL)**
+
+```bash
+# Via dnf
+sudo dnf install httpie
+
+# Via pip
+pip install httpie
+```
+
+**Linux (Arch Linux)**
+
+```bash
+# Via pacman
+sudo pacman -S httpie
+
+# Via pip
+pip install httpie
 ```
 
 **macOS**

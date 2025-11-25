@@ -45,9 +45,9 @@ app.use(
 
       // In production, whitelist specific domains
       const allowedOrigins = [
-        'https://medias-francais.com',
-        'https://www.medias-francais.com',
-        /^https:\/\/.*\.medias-francais\.com$/ // All subdomains
+        'https://medias-francais.fr',
+        'https://www.medias-francais.fr',
+        /^https:\/\/.*\.medias-francais\.fr$/ // All subdomains
       ];
 
       // Check if origin is allowed

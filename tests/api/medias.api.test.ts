@@ -143,7 +143,7 @@ Deno.test('GET /medias/:nom - returns 404 for non-existent media', async () => {
 
     assertEquals(res.status, 404);
     assertExists(json.error);
-    assertEquals(json.error.code, 404);
+    assertEquals(json.error.code, 'NOT_FOUND');
   } finally {
     cleanup();
   }

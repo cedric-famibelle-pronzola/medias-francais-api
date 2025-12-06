@@ -2,6 +2,7 @@ import { Hono } from '@hono/hono';
 import { mediasService } from '../services/medias.service.ts';
 import { NotFoundError } from '../errors.ts';
 import {
+  validateBoolean,
   validateOrder,
   validatePagination,
   validateSearchQuery,
@@ -53,11 +54,15 @@ mediasRouter.get('/search', (c) => {
   const query = validateSearchQuery(rawQuery);
   const sanitizedQuery = sanitizeSearchQuery(query);
 
-  const results = mediasService.search(sanitizedQuery);
+  // Validate extend parameter
+  const extend = validateBoolean(c.req.query('extend')) ?? false;
+
+  const results = mediasService.search(sanitizedQuery, extend);
 
   return c.json({
     query: sanitizedQuery,
-    results: results.map((m) => ({ nom: m.nom, type: m.type }))
+    count: results.length,
+    results
   });
 });
 

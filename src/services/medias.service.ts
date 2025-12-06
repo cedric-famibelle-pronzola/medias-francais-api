@@ -98,9 +98,18 @@ export const mediasService = {
     );
   },
 
-  search(query: string): MediaEnrichi[] {
+  search(
+    query: string,
+    extend = false
+  ): MediaEnrichi[] | Array<{ nom: string; type: string }> {
     const q = query.toLowerCase();
-    return getMedias().filter((m) => m.nom.toLowerCase().includes(q));
+    const results = getMedias().filter((m) => m.nom.toLowerCase().includes(q));
+
+    if (extend) {
+      return results; // Return full MediaEnrichi objects
+    }
+
+    return results.map((m) => ({ nom: m.nom, type: m.type })); // Return simplified
   },
 
   getTypes(): string[] {

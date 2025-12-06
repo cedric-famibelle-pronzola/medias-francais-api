@@ -250,7 +250,7 @@ curl "$API_BASE/medias/Le%20Monde/proprietaires-ultimes"
 http GET "$API_BASE/medias/Le Monde/proprietaires-ultimes"
 ```
 
-### Recherche de médias
+### Recherche de médias (mode simple)
 
 **curl**
 
@@ -262,6 +262,23 @@ curl "$API_BASE/medias/search?q=monde"
 
 ```bash
 http GET $API_BASE/medias/search q==monde
+```
+
+### Recherche de médias (mode enrichi)
+
+Avec le paramètre `extend=true`, les résultats incluent toutes les informations
+(propriétaires, chaîne de propriétaires, etc.).
+
+**curl**
+
+```bash
+curl "$API_BASE/medias/search?q=monde&extend=true"
+```
+
+**httpie**
+
+```bash
+http GET $API_BASE/medias/search q==monde extend==true
 ```
 
 ---

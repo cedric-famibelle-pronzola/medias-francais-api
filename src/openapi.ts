@@ -102,7 +102,8 @@ const baseSpec = {
       get: {
         tags: ['Médias'],
         summary: 'Recherche de médias',
-        description: 'Recherche de médias par nom.',
+        description:
+          'Recherche de médias par nom. Utilisez extend=true pour obtenir toutes les informations (propriétaires, chaîne de propriétaires, etc.).',
         parameters: [
           {
             name: 'q',
@@ -110,6 +111,13 @@ const baseSpec = {
             required: true,
             description: 'Terme de recherche (min 2 caractères)',
             schema: { type: 'string', minLength: 2 }
+          },
+          {
+            name: 'extend',
+            in: 'query',
+            description:
+              'Mode enrichi : retourne toutes les informations du média (défaut: false)',
+            schema: { type: 'boolean', default: false }
           }
         ],
         responses: {
@@ -808,14 +816,29 @@ const baseSpec = {
         type: 'object',
         properties: {
           query: { type: 'string' },
+          count: {
+            type: 'integer',
+            description: 'Nombre de résultats trouvés'
+          },
           results: {
             type: 'array',
+            description:
+              'Résultats : objets simples (nom, type) par défaut ou objets complets avec extend=true',
             items: {
-              type: 'object',
-              properties: {
-                nom: { type: 'string' },
-                type: { type: 'string' }
-              }
+              oneOf: [
+                {
+                  type: 'object',
+                  description: 'Format simple (extend=false)',
+                  properties: {
+                    nom: { type: 'string' },
+                    type: { type: 'string' }
+                  }
+                },
+                {
+                  $ref: '#/components/schemas/MediaSummary',
+                  description: 'Format enrichi (extend=true)'
+                }
+              ]
             }
           }
         }

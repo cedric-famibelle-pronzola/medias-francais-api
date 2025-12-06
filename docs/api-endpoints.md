@@ -190,15 +190,33 @@ Recherche de médias par nom.
 
 **Query Parameters :**
 
-| Paramètre | Type   | Description                           |
-| --------- | ------ | ------------------------------------- |
-| `q`       | string | Terme de recherche (min 2 caractères) |
+| Paramètre | Type    | Description                                                    |
+| --------- | ------- | -------------------------------------------------------------- |
+| `q`       | string  | Terme de recherche (min 2 caractères)                          |
+| `extend`  | boolean | Si `true`, retourne toutes les infos (défaut: `false`, simple) |
 
-**Exemple de réponse :**
+**Modes de recherche :**
+
+- **Mode simple** (`extend=false` ou omis) : Retourne uniquement `nom` et `type`
+- **Mode enrichi** (`extend=true`) : Retourne toutes les informations du média
+  (propriétaires, chaîne de propriétaires, etc.)
+
+**Exemples de requêtes :**
+
+```
+# Recherche simple (nom et type uniquement)
+GET /medias/search?q=monde
+
+# Recherche enrichie (toutes les informations)
+GET /medias/search?q=monde&extend=true
+```
+
+**Exemple de réponse (mode simple) :**
 
 ```json
 {
   "query": "monde",
+  "count": 5,
   "results": [
     {
       "nom": "Le Monde",
@@ -207,6 +225,34 @@ Recherche de médias par nom.
     {
       "nom": "Le Monde diplomatique",
       "type": "Presse (généraliste  politique  économique)"
+    }
+  ]
+}
+```
+
+**Exemple de réponse (mode enrichi avec `extend=true`) :**
+
+```json
+{
+  "query": "monde",
+  "count": 5,
+  "results": [
+    {
+      "nom": "Le Monde",
+      "type": "Presse (généraliste  politique  économique)",
+      "periodicite": "Quotidien",
+      "echelle": "National",
+      "prix": "Payant",
+      "disparu": false,
+      "proprietaires": [
+        {
+          "nom": "Groupe Le Monde",
+          "type": "organisation",
+          "qualificatif": "égal à",
+          "valeur": "100.00%"
+        }
+      ],
+      "chaineProprietaires": [...]
     }
   ]
 }

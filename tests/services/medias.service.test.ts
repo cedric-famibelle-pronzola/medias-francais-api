@@ -189,6 +189,86 @@ Deno.test('mediasService.search - returns empty array for no matches', () => {
   }
 });
 
+Deno.test('mediasService.search - returns simple format by default', () => {
+  setup();
+  try {
+    const results = mediasService.search('monde');
+
+    assertEquals(results.length, 1);
+    assertEquals(results[0].nom, 'Le Monde');
+    assertEquals(
+      results[0].type,
+      'Presse (généraliste  politique  économique)'
+    );
+    // Should only have nom and type
+    assertEquals(Object.keys(results[0]).length, 2);
+    assertEquals('proprietaires' in results[0], false);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - returns simple format with extend=false', () => {
+  setup();
+  try {
+    const results = mediasService.search('monde', false);
+
+    assertEquals(results.length, 1);
+    assertEquals(results[0].nom, 'Le Monde');
+    assertEquals(
+      results[0].type,
+      'Presse (généraliste  politique  économique)'
+    );
+    // Should only have nom and type
+    assertEquals(Object.keys(results[0]).length, 2);
+    assertEquals('proprietaires' in results[0], false);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - returns full format with extend=true', () => {
+  setup();
+  try {
+    const results = mediasService.search('monde', true);
+
+    assertEquals(results.length, 1);
+    const media = results[0] as any; // Type guard needed due to union return type
+    assertEquals(media.nom, 'Le Monde');
+    assertEquals(media.type, 'Presse (généraliste  politique  économique)');
+    // Should have all MediaEnrichi properties
+    assertExists(media.prix);
+    assertExists(media.echelle);
+    assertExists(media.periodicite);
+    assertExists(media.proprietaires);
+    assertExists(media.chaineProprietaires);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - extended format includes ownership data', () => {
+  setup();
+  try {
+    const results = mediasService.search('monde', true);
+
+    assertEquals(results.length, 1);
+    const media = results[0] as any; // Type guard needed due to union return type
+
+    // Verify proprietaires array exists and has data
+    assertExists(media.proprietaires);
+    assertEquals(Array.isArray(media.proprietaires), true);
+    assertEquals(media.proprietaires.length > 0, true);
+
+    // Verify chaineProprietaires array exists and has data
+    assertExists(media.chaineProprietaires);
+    assertEquals(Array.isArray(media.chaineProprietaires), true);
+    assertEquals(media.chaineProprietaires.length > 0, true);
+  } finally {
+    cleanup();
+  }
+});
+
 Deno.test('mediasService.getTypes - returns unique types', () => {
   setup();
   try {

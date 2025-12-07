@@ -120,6 +120,120 @@ Deno.test('GET /medias/search - returns 400 for short query', async () => {
   }
 });
 
+Deno.test('GET /medias/search - returns simple format by default', async () => {
+  setup();
+  try {
+    const res = await app.request(`${API_BASE}/medias/search?q=monde`);
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.query, 'monde');
+    assertExists(json.count);
+    assertEquals(json.count, 1);
+    assertExists(json.results);
+    assertEquals(json.results.length, 1);
+
+    // Should only have nom and type
+    const result = json.results[0];
+    assertEquals(result.nom, 'Le Monde');
+    assertEquals(result.type, 'Presse (généraliste  politique  économique)');
+    assertEquals(Object.keys(result).length, 2);
+    assertEquals('proprietaires' in result, false);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - returns simple format with extend=false', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&extend=false`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.count, 1);
+
+    // Should only have nom and type
+    const result = json.results[0];
+    assertEquals(result.nom, 'Le Monde');
+    assertEquals(result.type, 'Presse (généraliste  politique  économique)');
+    assertEquals(Object.keys(result).length, 2);
+    assertEquals('proprietaires' in result, false);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - returns full format with extend=true', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&extend=true`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.query, 'monde');
+    assertEquals(json.count, 1);
+
+    // Should have all MediaEnrichi properties
+    const result = json.results[0];
+    assertEquals(result.nom, 'Le Monde');
+    assertEquals(result.type, 'Presse (généraliste  politique  économique)');
+    assertExists(result.prix);
+    assertExists(result.echelle);
+    assertExists(result.periodicite);
+    assertExists(result.disparu);
+    assertExists(result.proprietaires);
+    assertExists(result.chaineProprietaires);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - extended format includes ownership data', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&extend=true`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    const result = json.results[0];
+
+    // Verify proprietaires array has data
+    assertExists(result.proprietaires);
+    assertEquals(Array.isArray(result.proprietaires), true);
+    assertEquals(result.proprietaires.length > 0, true);
+
+    // Verify chaineProprietaires array has data
+    assertExists(result.chaineProprietaires);
+    assertEquals(Array.isArray(result.chaineProprietaires), true);
+    assertEquals(result.chaineProprietaires.length > 0, true);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - validates extend parameter', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&extend=invalid`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 400);
+    assertExists(json.error);
+    assertEquals(json.error.code, 'VALIDATION_ERROR');
+  } finally {
+    cleanup();
+  }
+});
+
 Deno.test('GET /medias/:nom - returns media details', async () => {
   setup();
   try {

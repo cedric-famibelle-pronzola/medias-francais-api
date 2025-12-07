@@ -1,5 +1,9 @@
 import { assertEquals, assertExists } from '@std/assert';
-import { clearData, setTestData } from '../../src/data/index.ts';
+import {
+  clearData,
+  setTestData,
+  type MediaEnrichi
+} from '../../src/data/index.ts';
 import { mediasService } from '../../src/services/medias.service.ts';
 import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
 
@@ -230,10 +234,10 @@ Deno.test('mediasService.search - returns simple format with extend=false', () =
 Deno.test('mediasService.search - returns full format with extend=true', () => {
   setup();
   try {
-    const results = mediasService.search('monde', true);
+    const results = mediasService.search('monde', true) as MediaEnrichi[];
 
     assertEquals(results.length, 1);
-    const media = results[0] as any; // Type guard needed due to union return type
+    const media = results[0];
     assertEquals(media.nom, 'Le Monde');
     assertEquals(media.type, 'Presse (généraliste  politique  économique)');
     // Should have all MediaEnrichi properties
@@ -250,10 +254,10 @@ Deno.test('mediasService.search - returns full format with extend=true', () => {
 Deno.test('mediasService.search - extended format includes ownership data', () => {
   setup();
   try {
-    const results = mediasService.search('monde', true);
+    const results = mediasService.search('monde', true) as MediaEnrichi[];
 
     assertEquals(results.length, 1);
-    const media = results[0] as any; // Type guard needed due to union return type
+    const media = results[0];
 
     // Verify proprietaires array exists and has data
     assertExists(media.proprietaires);

@@ -234,6 +234,79 @@ Deno.test('GET /medias/search - validates extend parameter', async () => {
   }
 });
 
+Deno.test('GET /medias/search - sorts results by nom ascending', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&sort=nom&order=asc`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.results.length, 1);
+    assertEquals(json.results[0].nom, 'Le Monde');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - sorts results by nom descending', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&sort=nom&order=desc`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.results.length, 1);
+    assertEquals(json.results[0].nom, 'Le Monde');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - sorting works with extend=true', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=monde&sort=nom&order=asc&extend=true`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.results.length, 1);
+    assertEquals(json.results[0].nom, 'Le Monde');
+    // Verify extended format
+    assertExists(json.results[0].proprietaires);
+    assertExists(json.results[0].chaineProprietaires);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('GET /medias/search - sorting works with search query', async () => {
+  setup();
+  try {
+    const res = await app.request(
+      `${API_BASE}/medias/search?q=in&sort=nom&order=asc`
+    );
+    const json = await res.json();
+
+    assertEquals(res.status, 200);
+    assertEquals(json.results.length >= 2, true); // "La Cinq" and "France Inter"
+    // Verify results are sorted
+    for (let i = 0; i < json.results.length - 1; i++) {
+      assertEquals(
+        json.results[i].nom.localeCompare(json.results[i + 1].nom, 'fr') <= 0,
+        true
+      );
+    }
+  } finally {
+    cleanup();
+  }
+});
+
 Deno.test('GET /medias/:nom - returns media details', async () => {
   setup();
   try {

@@ -1,8 +1,8 @@
 import { assertEquals, assertExists } from '@std/assert';
 import {
   clearData,
-  setTestData,
-  type MediaEnrichi
+  type MediaEnrichi,
+  setTestData
 } from '../../src/data/index.ts';
 import { mediasService } from '../../src/services/medias.service.ts';
 import { mockMedias, mockOrganisations, mockPersonnes } from '../setup.ts';
@@ -268,6 +268,78 @@ Deno.test('mediasService.search - extended format includes ownership data', () =
     assertExists(media.chaineProprietaires);
     assertEquals(Array.isArray(media.chaineProprietaires), true);
     assertEquals(media.chaineProprietaires.length > 0, true);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - sorts results by nom ascending', () => {
+  setup();
+  try {
+    // Search for a term and apply sorting
+    const results = mediasService.search('monde', false, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    assertEquals(results.length, 1);
+    assertEquals(results[0].nom, 'Le Monde');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - sorts results by nom descending', () => {
+  setup();
+  try {
+    const results = mediasService.search('monde', false, {
+      sort: 'nom',
+      order: 'desc'
+    });
+
+    assertEquals(results.length, 1);
+    assertEquals(results[0].nom, 'Le Monde');
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - sorts with extend=true', () => {
+  setup();
+  try {
+    const results = mediasService.search('monde', true, {
+      sort: 'nom',
+      order: 'asc'
+    }) as MediaEnrichi[];
+
+    assertEquals(results.length, 1);
+    assertEquals(results[0].nom, 'Le Monde');
+    // Verify it's full format
+    assertExists(results[0].proprietaires);
+    assertExists(results[0].chaineProprietaires);
+  } finally {
+    cleanup();
+  }
+});
+
+Deno.test('mediasService.search - sorting works with search query', () => {
+  setup();
+  try {
+    // Search for medias containing "in": "La Cinq", "France Inter", "Tribune de Genève"
+    const results = mediasService.search('in', false, {
+      sort: 'nom',
+      order: 'asc'
+    });
+
+    // Should find multiple and sort them
+    assertEquals(results.length >= 2, true);
+    // Verify sorted order
+    for (let i = 0; i < results.length - 1; i++) {
+      assertEquals(
+        results[i].nom.localeCompare(results[i + 1].nom, 'fr') <= 0,
+        true
+      );
+    }
   } finally {
     cleanup();
   }

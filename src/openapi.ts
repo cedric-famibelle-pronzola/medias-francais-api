@@ -118,6 +118,21 @@ const baseSpec = {
             description:
               'Mode enrichi : retourne toutes les informations du média (défaut: false)',
             schema: { type: 'boolean', default: false }
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            description: 'Champ de tri',
+            schema: {
+              type: 'string',
+              enum: ['nom', 'type', 'periodicite', 'echelle', 'prix']
+            }
+          },
+          {
+            name: 'order',
+            in: 'query',
+            description: 'Ordre de tri',
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' }
           }
         ],
         responses: {

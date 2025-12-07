@@ -194,6 +194,8 @@ Recherche de médias par nom.
 | --------- | ------- | -------------------------------------------------------------- |
 | `q`       | string  | Terme de recherche (min 2 caractères)                          |
 | `extend`  | boolean | Si `true`, retourne toutes les infos (défaut: `false`, simple) |
+| `sort`    | string  | Champ de tri : `nom`, `type`, `prix`, `echelle`, `periodicite` |
+| `order`   | string  | Ordre de tri : `asc` (croissant), `desc` (décroissant)         |
 
 **Modes de recherche :**
 
@@ -209,6 +211,12 @@ GET /medias/search?q=monde
 
 # Recherche enrichie (toutes les informations)
 GET /medias/search?q=monde&extend=true
+
+# Recherche avec tri par nom
+GET /medias/search?q=monde&sort=nom&order=asc
+
+# Recherche enrichie avec tri
+GET /medias/search?q=france&extend=true&sort=type&order=asc
 ```
 
 **Exemple de réponse (mode simple) :**

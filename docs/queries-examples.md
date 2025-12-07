@@ -281,6 +281,46 @@ curl "$API_BASE/medias/search?q=monde&extend=true"
 http GET $API_BASE/medias/search q==monde extend==true
 ```
 
+### Recherche avec tri
+
+Trier les résultats de recherche par nom, type, ou autres champs.
+
+**curl**
+
+```bash
+# Tri par nom (ordre alphabétique)
+curl "$API_BASE/medias/search?q=france&sort=nom&order=asc"
+
+# Tri par type
+curl "$API_BASE/medias/search?q=media&sort=type&order=asc"
+```
+
+**httpie**
+
+```bash
+# Tri par nom (ordre alphabétique)
+http GET $API_BASE/medias/search q==france sort==nom order==asc
+
+# Tri par type
+http GET $API_BASE/medias/search q==media sort==type order==asc
+```
+
+### Recherche enrichie avec tri
+
+Combiner le mode enrichi (`extend=true`) avec le tri.
+
+**curl**
+
+```bash
+curl "$API_BASE/medias/search?q=france&extend=true&sort=nom&order=asc"
+```
+
+**httpie**
+
+```bash
+http GET $API_BASE/medias/search q==france extend==true sort==nom order==asc
+```
+
 ---
 
 ## 👤 Personnes

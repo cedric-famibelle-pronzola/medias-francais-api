@@ -100,10 +100,31 @@ export const mediasService = {
 
   search(
     query: string,
-    extend = false
+    extend = false,
+    sorting: SortParams = {}
   ): MediaEnrichi[] | Array<{ nom: string; type: string }> {
     const q = query.toLowerCase();
-    const results = getMedias().filter((m) => m.nom.toLowerCase().includes(q));
+    let results = getMedias().filter((m) => m.nom.toLowerCase().includes(q));
+
+    // Apply sorting if specified
+    if (sorting.sort) {
+      const order = sorting.order === 'desc' ? -1 : 1;
+      results = [...results].sort((a, b) => {
+        const aVal = a[sorting.sort as keyof MediaEnrichi];
+        const bVal = b[sorting.sort as keyof MediaEnrichi];
+
+        if (aVal === undefined || aVal === null) return 1;
+        if (bVal === undefined || bVal === null) return -1;
+
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return aVal.localeCompare(bVal, 'fr') * order;
+        }
+        if (typeof aVal === 'boolean' && typeof bVal === 'boolean') {
+          return (aVal === bVal ? 0 : aVal ? -1 : 1) * order;
+        }
+        return 0;
+      });
+    }
 
     if (extend) {
       return results; // Return full MediaEnrichi objects

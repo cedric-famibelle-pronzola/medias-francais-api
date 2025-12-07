@@ -10,7 +10,8 @@ and this project adheres to
 
 ### ✨ Added
 
-- **Extended Search Results**: Add `extend` parameter to `/medias/search` endpoint
+- **Extended Search Results**: Add `extend` parameter to `/medias/search`
+  endpoint
   - Default behavior: returns simple format with `{nom, type}` only
   - `extend=true`: returns full `MediaEnrichi` objects with ownership data
   - `extend=false`: explicit simple format
@@ -19,7 +20,8 @@ and this project adheres to
 
 ### 🔧 Changed
 
-- **CORS Configuration**: Make allowed origins configurable via environment variables
+- **CORS Configuration**: Make allowed origins configurable via environment
+  variables
   - `ALLOWED_ORIGINS`: comma-separated list of allowed origins
   - More flexible deployment across different domains
   - Maintains security while improving configurability

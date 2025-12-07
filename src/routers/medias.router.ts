@@ -57,7 +57,11 @@ mediasRouter.get('/search', (c) => {
   // Validate extend parameter
   const extend = validateBoolean(c.req.query('extend')) ?? false;
 
-  const results = mediasService.search(sanitizedQuery, extend);
+  // Validate sorting parameters
+  const sort = validateSort(c.req.query('sort'), 'medias');
+  const order = validateOrder(c.req.query('order'));
+
+  const results = mediasService.search(sanitizedQuery, extend, { sort, order });
 
   return c.json({
     query: sanitizedQuery,

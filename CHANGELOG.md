@@ -6,6 +6,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-12-07
+
+### ✨ Added
+
+- **Extended Search Results**: Add `extend` parameter to `/medias/search` endpoint
+  - Default behavior: returns simple format with `{nom, type}` only
+  - `extend=true`: returns full `MediaEnrichi` objects with ownership data
+  - `extend=false`: explicit simple format
+  - Includes validation with 400 error for invalid values
+  - Enables flexible API consumption based on client needs
+
+### 🔧 Changed
+
+- **CORS Configuration**: Make allowed origins configurable via environment variables
+  - `ALLOWED_ORIGINS`: comma-separated list of allowed origins
+  - More flexible deployment across different domains
+  - Maintains security while improving configurability
+
+### 📚 Documentation
+
+- Add comprehensive documentation for `extend` parameter
+  - OpenAPI/Swagger specification updated
+  - Usage examples with curl and httpie
+  - API endpoint documentation updated
+- Improve installation documentation with Arch Linux instructions
+- Add practical API usage examples
+- Update rate limiting and sorting parameters documentation
+- Clean up unused documentation file references
+
+### 🧪 Tests
+
+- Add comprehensive test coverage for `extend` parameter
+  - 4 new service-layer tests
+  - 6 new API-layer tests
+  - Validation and error handling tests
+  - All 137 tests passing (1 ignored)
+
+### 🐛 Fixed
+
+- Fix TypeScript type assertions in tests (replaced `any` with `MediaEnrichi[]`)
+- Fix allowed origins domain extension configuration
+
+---
+
 ## [1.0.1] - 2025-11-25
 
 ### 🔒 Security

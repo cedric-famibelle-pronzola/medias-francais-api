@@ -1,6 +1,7 @@
 # Système de logging structuré
 
-L'API dispose d'un système de logging structuré avec support multi-backend (DuckDB ou PostgreSQL) pour enregistrer toutes les requêtes HTTP.
+L'API dispose d'un système de logging structuré avec support multi-backend
+(DuckDB ou PostgreSQL) pour enregistrer toutes les requêtes HTTP.
 
 ## Table des matières
 
@@ -14,6 +15,7 @@ L'API dispose d'un système de logging structuré avec support multi-backend (Du
 ## Vue d'ensemble
 
 Le système de logging permet de :
+
 - **Sécurité** : Détecter les abus, attaques DDoS, tentatives d'intrusion
 - **Performance** : Analyser les temps de réponse et optimiser l'infrastructure
 - **Fiabilité** : Diagnostiquer les erreurs et améliorer la qualité du service
@@ -68,34 +70,42 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 
 #### Deno Deploy
 
-Sur Deno Deploy, les logs sont **toujours capturés** via `console.log()` et visibles dans le dashboard Deno Deploy. Pour une persistance en base de données externe, configurez PostgreSQL :
+Sur Deno Deploy, les logs sont **toujours capturés** via `console.log()` et
+visibles dans le dashboard Deno Deploy. Pour une persistance en base de données
+externe, configurez PostgreSQL :
 
-| Variable | Valeur | Description |
-|----------|--------|-------------|
-| `ENVIRONMENT` | `production` | Active automatiquement le logger structuré |
-| `LOG_STORAGE_BACKEND` | `postgres` | Utiliser PostgreSQL pour persistance longue durée |
-| `DATABASE_URL` | `postgresql://...` | URL de connexion PostgreSQL externe (ex: Neon.tech) |
+| Variable              | Valeur             | Description                                         |
+| --------------------- | ------------------ | --------------------------------------------------- |
+| `ENVIRONMENT`         | `production`       | Active automatiquement le logger structuré          |
+| `LOG_STORAGE_BACKEND` | `postgres`         | Utiliser PostgreSQL pour persistance longue durée   |
+| `DATABASE_URL`        | `postgresql://...` | URL de connexion PostgreSQL externe (ex: Neon.tech) |
 
 **Architecture sur api.medias-francais.fr** :
+
 - ✅ Logs capturés par Deno Deploy via `console.log()` (dashboard)
-- ✅ PostgreSQL externe sur [Neon.tech](https://neon.tech/) (AWS Allemagne) pour persistance
+- ✅ PostgreSQL externe sur [Neon.tech](https://neon.tech/) (AWS Allemagne) pour
+  persistance
 - ❌ DuckDB impossible (pas de système de fichiers persistant en écriture)
 
-**Note** : PostgreSQL est **optionnel** sur Deno Deploy. Sans `DATABASE_URL`, seuls les logs du dashboard Deno Deploy sont disponibles.
+**Note** : PostgreSQL est **optionnel** sur Deno Deploy. Sans `DATABASE_URL`,
+seuls les logs du dashboard Deno Deploy sont disponibles.
 
 ## Backends disponibles
 
 ### DuckDB (développement local et production auto-hébergée)
 
 **Caractéristiques :**
+
 - ✅ Aucune configuration requise
 - ✅ Fichier local `logs/access_logs.db` (mode fichier)
 - ✅ Mode mémoire possible (`":memory:"`) mais sans persistance
 - ✅ Parfait pour le développement et serveurs dédiés/VPS
-- ⚠️ **Sur Deno Deploy** : Mode fichier impossible, mode mémoire possible mais données perdues entre isolates
+- ⚠️ **Sur Deno Deploy** : Mode fichier impossible, mode mémoire possible mais
+  données perdues entre isolates
 - ❌ Non distribué (un fichier = une instance)
 
 **Activation automatique :**
+
 ```bash
 # .env
 USE_STRUCTURED_LOGGER=true
@@ -103,6 +113,7 @@ USE_STRUCTURED_LOGGER=true
 ```
 
 **Structure de stockage :**
+
 ```sql
 CREATE TABLE logs (
   log JSON  -- Toutes les données en JSON
@@ -110,6 +121,7 @@ CREATE TABLE logs (
 ```
 
 **Lecture des logs (CLI DuckDB) :**
+
 ```bash
 duckdb logs/access_logs.db
 
@@ -131,6 +143,7 @@ ORDER BY json_extract(log, '$.timestamp') DESC;
 ### PostgreSQL (local, production auto-hébergée et Deno Deploy)
 
 **Caractéristiques :**
+
 - ✅ Compatible avec tous les environnements (local, VPS, Deno Deploy)
 - ✅ Distribué (plusieurs instances = même base)
 - ✅ Requêtes SQL performantes (index)
@@ -139,6 +152,7 @@ ORDER BY json_extract(log, '$.timestamp') DESC;
 - ⚠️ Nécessite une instance PostgreSQL accessible via réseau
 
 **Activation :**
+
 ```bash
 # .env (local ou production auto-hébergée)
 USE_STRUCTURED_LOGGER=true
@@ -150,6 +164,7 @@ DATABASE_URL=postgresql://user:password@ep-xxx.eu-central-1.aws.neon.tech/logs
 ```
 
 **Structure de la table :**
+
 ```sql
 CREATE TABLE logs (
   id SERIAL PRIMARY KEY,
@@ -175,6 +190,7 @@ CREATE INDEX idx_logs_request_id ON logs(request_id);
 ```
 
 **Lecture des logs (SQL) :**
+
 ```sql
 -- Derniers logs
 SELECT * FROM logs ORDER BY timestamp DESC LIMIT 10;
@@ -222,6 +238,7 @@ Chaque requête HTTP génère une entrée de log contenant :
 ```
 
 **Exemple de log :**
+
 ```json
 {
   "timestamp": "2025-12-09T10:30:15.234Z",
@@ -243,12 +260,14 @@ Chaque requête HTTP génère une entrée de log contenant :
 ### Développement local
 
 **Par défaut** : Logger Hono standard (console simple)
+
 ```bash
 # .env
 USE_STRUCTURED_LOGGER=false  # ou absent
 ```
 
 **Avec logs structurés + DuckDB** :
+
 ```bash
 # .env
 USE_STRUCTURED_LOGGER=true
@@ -256,6 +275,7 @@ USE_STRUCTURED_LOGGER=true
 ```
 
 **Avantages DuckDB en local :**
+
 - Aucune dépendance externe
 - Fichier local simple à explorer
 - Idéal pour déboguer
@@ -263,6 +283,7 @@ USE_STRUCTURED_LOGGER=true
 ### Production auto-hébergée (VPS, serveur dédié)
 
 **Option 1 : DuckDB** (simple, pas de dépendance)
+
 ```bash
 # .env
 ENVIRONMENT=production
@@ -270,6 +291,7 @@ ENVIRONMENT=production
 ```
 
 **Option 2 : PostgreSQL** (recommandé pour multi-instances)
+
 ```bash
 # .env
 ENVIRONMENT=production
@@ -279,11 +301,14 @@ DATABASE_URL=postgresql://user:password@postgres-host:5432/logs
 
 ### Production Deno Deploy
 
-**Logs toujours disponibles** : Deno Deploy capture automatiquement tous les `console.log()` dans son dashboard.
+**Logs toujours disponibles** : Deno Deploy capture automatiquement tous les
+`console.log()` dans son dashboard.
 
-**PostgreSQL optionnel** : Pour une persistance longue durée et des analyses SQL avancées, configurez une base PostgreSQL externe.
+**PostgreSQL optionnel** : Pour une persistance longue durée et des analyses SQL
+avancées, configurez une base PostgreSQL externe.
 
 **Variables d'environnement Deno Deploy :**
+
 ```
 ENVIRONMENT=production
 LOG_STORAGE_BACKEND=postgres  # Optionnel
@@ -291,12 +316,16 @@ DATABASE_URL=postgresql://user:password@host:5432/database  # Optionnel
 ```
 
 **Configuration actuelle de api.medias-francais.fr :**
+
 - ✅ Logs capturés par le dashboard Deno Deploy (`console.log()`)
-- ✅ PostgreSQL externe : [Neon.tech](https://neon.tech/) (serveur AWS **eu-central-1**, Allemagne)
+- ✅ PostgreSQL externe : [Neon.tech](https://neon.tech/) (serveur AWS
+  **eu-central-1**, Allemagne)
 - ✅ Persistance longue durée pour analyses et statistiques
 
 **Services PostgreSQL compatibles :**
-- [Neon](https://neon.tech/) - PostgreSQL serverless (utilisé par api.medias-francais.fr)
+
+- [Neon](https://neon.tech/) - PostgreSQL serverless (utilisé par
+  api.medias-francais.fr)
 - [Supabase](https://supabase.com/) - PostgreSQL + API
 - [Railway](https://railway.app/) - PostgreSQL managé
 - [Render](https://render.com/) - PostgreSQL managé
@@ -304,15 +333,21 @@ DATABASE_URL=postgresql://user:password@host:5432/database  # Optionnel
 - Google Cloud SQL PostgreSQL
 
 **⚠️ Limitations Deno Deploy :**
-- ❌ Pas de système de fichiers persistant en écriture → **DuckDB fichier impossible**
-- ✅ DuckDB en mémoire possible (`":memory:"`) mais données perdues à chaque redémarrage d'isolate
+
+- ❌ Pas de système de fichiers persistant en écriture → **DuckDB fichier
+  impossible**
+- ✅ DuckDB en mémoire possible (`":memory:"`) mais données perdues à chaque
+  redémarrage d'isolate
 - ✅ FFI supporté depuis 2025
 - ✅ Connexions réseau autorisées → **PostgreSQL externe OK**
-- ✅ Logs dashboard intégrés → **Pas besoin de base pour consulter les logs récents**
+- ✅ Logs dashboard intégrés → **Pas besoin de base pour consulter les logs
+  récents**
 
 ## Confidentialité
 
-Les logs collectent des données personnelles (IP, User-Agent). Consultez [PRIVACY.md](../PRIVACY.md) pour :
+Les logs collectent des données personnelles (IP, User-Agent). Consultez
+[PRIVACY.md](../PRIVACY.md) pour :
+
 - Justification légale (RGPD)
 - Durée de conservation (6 mois)
 - Droits des utilisateurs
@@ -393,20 +428,24 @@ ORDER BY date DESC;
 **Problème** : `PostgreSQL pool not initialized`
 
 **Vérifications** :
+
 1. `DATABASE_URL` est bien définie
 2. PostgreSQL est accessible depuis l'application
 3. Table `logs` existe (créée automatiquement au démarrage)
 
 **Test de connexion** :
+
 ```bash
 psql $DATABASE_URL -c "SELECT 1"
 ```
 
 ### Sur Deno Deploy : pas de logs en base
 
-**Cause probable** : `LOG_STORAGE_BACKEND` n'est pas défini ou = `auto` sans `DATABASE_URL`
+**Cause probable** : `LOG_STORAGE_BACKEND` n'est pas défini ou = `auto` sans
+`DATABASE_URL`
 
 **Solution** : Définir explicitement dans le dashboard Deno Deploy :
+
 ```
 LOG_STORAGE_BACKEND=postgres
 DATABASE_URL=postgresql://...

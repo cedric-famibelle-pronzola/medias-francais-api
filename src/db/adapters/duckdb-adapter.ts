@@ -45,11 +45,10 @@ export class DuckDBAdapter implements LogAdapter {
   }
 
   async close(): Promise<void> {
-    if (this.connection) {
-      await this.connection.close();
-      this.connection = null;
-    }
+    // DuckDB connections et instances sont automatiquement fermées lors du garbage collection
+    this.connection = null;
     this.instance = null;
+    await Promise.resolve();
   }
 
   async healthCheck(): Promise<boolean> {

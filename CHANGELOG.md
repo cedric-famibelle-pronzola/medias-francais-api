@@ -6,6 +6,125 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-12-10
+
+### ✨ Added
+
+- **Structured Logging System**: Complete logging infrastructure with multi-backend support
+  - `LogEntry` type definition with timestamp, level, method, path, query, status, duration, IP, User-Agent, request ID, referer
+  - `LogAdapter` interface for extensible storage backends
+  - Factory pattern with auto-detection based on environment variables
+  - Non-blocking log insertion (errors don't affect HTTP responses)
+
+- **DuckDB Backend**: File-based and in-memory storage for local/self-hosted environments
+  - File mode: `logs/access_logs.db` for persistent storage
+  - Memory mode: `":memory:"` for ephemeral usage
+  - JSON column storage structure
+  - Perfect for development and VPS deployments
+  - Not compatible with Deno Deploy (requires persistent file system)
+
+- **PostgreSQL Backend**: Network-based storage for all environments
+  - Compatible with local, VPS, and Deno Deploy
+  - Typed columns with indexes (timestamp, status, path, request_id)
+  - External database support (Neon.tech, Supabase, AWS RDS, etc.)
+  - Production setup: Neon.tech on AWS eu-central-1 (Germany)
+
+- **Enhanced Log Data**: Additional fields for better observability
+  - Query parameters (`?type=Télévision&limit=20`)
+  - Referer header (origin page URL)
+  - Request ID (8-character unique identifier in `X-Request-ID` header)
+
+- **GDPR-Compliant Privacy Policy** (`PRIVACY.md`):
+  - Complete data collection disclosure with real examples
+  - Legal justification (GDPR Articles 6.1.f and 6.1.c)
+  - 6-month retention period (CNIL recommendation)
+  - User rights (access, rectification, deletion, opposition) with limitations explained
+  - International data transfers transparency (Deno Deploy, Neon.tech)
+  - Detailed contact requirements for rights exercise
+  - IP ownership impossibility explanation
+
+- **Comprehensive Documentation** (`docs/logging.md`):
+  - Mermaid architecture diagram
+  - Configuration for each environment (local dev, self-hosted production, Deno Deploy)
+  - SQL query examples for both DuckDB and PostgreSQL
+  - Troubleshooting guide
+  - Technical nuances (DuckDB memory vs file, FFI on Deno Deploy)
+
+- **Privacy Warning in Swagger UI**: Visible notice about data collection with link to privacy policy
+
+### 🔧 Changed
+
+- **Middleware Enhancement**: `structuredLogger` now enriches logs with query params and referer
+- **Environment-Aware Logging**: Automatically enabled in production (`ENVIRONMENT=production`)
+- **Dual Logging on Deno Deploy**: Both `console.log()` (dashboard) and PostgreSQL (long-term storage)
+
+### 🛠️ Configuration
+
+- **New Environment Variables**:
+  - `USE_STRUCTURED_LOGGER`: Enable structured logging (default: false in dev, true in production)
+  - `LOG_STORAGE_BACKEND`: Choose backend (`auto`, `duckdb`, `postgres`) - auto-detects based on `DATABASE_URL`
+  - `DATABASE_URL`: PostgreSQL connection string (enables PostgreSQL backend)
+
+### 📦 Dependencies
+
+- **Added**:
+  - `@duckdb/node-api@^1.4.2-r.1` (npm): DuckDB client for Deno
+  - `pg@^8.13.1` (npm): PostgreSQL client
+
+### 🧪 Tests
+
+- Updated test permissions: `--allow-ffi` and `--allow-write` for DuckDB support
+- All 145 tests passing
+
+### 📚 Documentation
+
+- Privacy policy with official GDPR/CNIL source links
+- Technical logging documentation with architecture diagrams
+- Updated README with logging documentation link
+- OpenAPI version updated to 1.2.0
+
+### 🔒 Privacy & Compliance
+
+- ✅ GDPR compliant (Articles 5.1.c, 6.1.f, 6.1.c, 15-17, 21)
+- ✅ CNIL recommendations followed (6-month retention)
+- ✅ Data minimization principle applied
+- ✅ Transparent international data transfers disclosure
+- ✅ User rights documented with practical limitations
+
+### 🏗️ Architecture
+
+**Multi-Environment Support**:
+- **Local dev**: DuckDB file (`logs/access_logs.db`) or PostgreSQL
+- **Self-hosted**: DuckDB file or PostgreSQL (your choice)
+- **Deno Deploy**: Dashboard logs (free) + optional PostgreSQL external (Neon.tech)
+
+**Data Flow**:
+```
+HTTP Request → structuredLogger
+    ├─→ console.log() → Deno Deploy Dashboard
+    └─→ Factory → DuckDB or PostgreSQL (based on DATABASE_URL)
+```
+
+### 📊 Impact Summary
+
+**Observability**:
+- ✅ Complete HTTP request tracking
+- ✅ Performance monitoring (duration tracking)
+- ✅ Error diagnosis (status codes, stack traces)
+- ✅ Usage statistics (endpoints, query patterns)
+
+**Compliance**:
+- ✅ Legal data collection framework
+- ✅ User transparency and rights
+- ✅ International transfer compliance
+
+**Flexibility**:
+- ✅ Works in all deployment scenarios
+- ✅ Optional PostgreSQL for advanced analytics
+- ✅ Zero configuration required in dev
+
+---
+
 ## [1.1.0] - 2025-12-07
 
 ### ✨ Added

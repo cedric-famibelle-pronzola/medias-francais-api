@@ -4,7 +4,11 @@ const baseSpec = {
   info: {
     title: 'Médias Français API',
     description:
-      'API sur la propriété des médias français. Données issues du projet mdiplo/Medias_francais (Mise à jour en décembre 2024).',
+      'API sur la propriété des médias français. Données issues du projet mdiplo/Medias_francais (Mise à jour en décembre 2024).\n\n' +
+      '⚠️ **Confidentialité** : Cette API collecte des logs techniques (adresse IP, User-Agent, endpoints appelés) ' +
+      'pour des raisons de sécurité, performance et diagnostic. Ces données sont stockées sur les serveurs de ' +
+      '**Deno Land Inc** (société américaine basée à San Diego, CA) via Deno Deploy. ' +
+      'Consultez [PRIVACY.md](https://github.com/cedricmillet/medias-francais-api/blob/main/PRIVACY.md) pour plus de détails.',
     version: '1.0.0',
     contact: {
       name: 'API Support'

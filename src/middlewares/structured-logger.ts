@@ -25,16 +25,20 @@ export function structuredLogger() {
       (c.env?.remoteAddr as { hostname?: string })?.hostname ||
       '127.0.0.1';
 
+    const url = new URL(c.req.url);
+
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info',
       method: c.req.method,
-      path: new URL(c.req.url).pathname,
+      path: url.pathname,
+      query: url.search,
       status,
       duration,
       ip,
       userAgent: c.req.header('user-agent') || 'unknown',
-      requestId
+      requestId,
+      referer: c.req.header('referer') || undefined
     };
 
     // deno-lint-ignore no-console

@@ -1,5 +1,5 @@
 import type { Context, Next } from '@hono/hono';
-import { insertLog } from '../db/queries.ts';
+import { insertLog } from '../db/log-storage.ts';
 import type { LogEntry } from '../@types/log-entry.ts';
 
 /**

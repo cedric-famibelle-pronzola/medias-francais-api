@@ -1,16 +1,6 @@
 import type { Context, Next } from '@hono/hono';
-
-interface LogEntry {
-  timestamp: string;
-  level: 'info' | 'warn' | 'error';
-  method: string;
-  path: string;
-  status: number;
-  duration: number;
-  ip: string;
-  userAgent: string;
-  requestId: string;
-}
+import { insertLog } from '../db/queries.ts';
+import type { LogEntry } from '../@types/log-entry.ts';
 
 /**
  * Middleware pour logs structurés en JSON
@@ -49,5 +39,11 @@ export function structuredLogger() {
 
     // deno-lint-ignore no-console
     console.log(JSON.stringify(logEntry));
+
+    // Insérer le log dans DuckDB (async, ne bloque pas la réponse)
+    insertLog(logEntry).catch((err) => {
+      // deno-lint-ignore no-console
+      console.error('Failed to insert log:', err);
+    });
   };
 }

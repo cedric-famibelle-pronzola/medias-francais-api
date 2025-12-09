@@ -68,6 +68,20 @@ export class PostgresAdapter implements LogAdapter {
       throw new Error('PostgreSQL pool not initialized');
     }
 
+    const {
+      timestamp,
+      level,
+      method,
+      path,
+      query,
+      status,
+      duration,
+      ip,
+      userAgent,
+      requestId,
+      referer
+    } = log;
+
     await this.pool.query(
       `
       INSERT INTO logs (
@@ -76,17 +90,17 @@ export class PostgresAdapter implements LogAdapter {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `,
       [
-        log.timestamp,
-        log.level,
-        log.method,
-        log.path,
-        log.query,
-        log.status,
-        log.duration,
-        log.ip,
-        log.userAgent,
-        log.requestId,
-        log.referer || null
+        timestamp,
+        level,
+        method,
+        path,
+        query,
+        status,
+        duration,
+        ip,
+        userAgent,
+        requestId,
+        referer || null
       ]
     );
   }

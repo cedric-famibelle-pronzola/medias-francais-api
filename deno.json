@@ -5,8 +5,8 @@
     "build": "deno run --env-file --allow-env --allow-net --allow-write --allow-read build.ts",
     "build:ci": "deno run --allow-env --allow-net --allow-write --allow-read build.ts",
     "enrich": "deno run --allow-read --allow-write enrich.ts",
-    "test": "deno test --allow-read --allow-env tests/",
-    "test:watch": "deno test --watch --allow-read --allow-env tests/",
+    "test": "deno test --allow-read --allow-write --allow-ffi --allow-env tests/",
+    "test:watch": "deno test --watch --allow-read --allow-write --allow-ffi --allow-env tests/",
     "lint": "deno lint",
     "fmt": "deno fmt",
     "check": "deno check"

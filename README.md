@@ -85,4 +85,5 @@ L'API est protégée par un rate limiter différencié :
 - [Script d'enrichissement](docs/enrich.md)
 - [API Endpoints](docs/api-endpoints.md)
 - [Exemples de requêtes (curl/httpie)](docs/exemples-requetes.md)
+- [Système de logging](docs/logging.md)
 - [Déploiement Deno Deploy](docs/deploy.md)

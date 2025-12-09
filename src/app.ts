@@ -22,8 +22,10 @@ const api = app.basePath(API_BASE_PATH);
 
 // Middlewares
 const isProduction = Deno.env.get('ENVIRONMENT') === 'production';
+const useStructuredLogger = Deno.env.get('USE_STRUCTURED_LOGGER') === 'true' ||
+  isProduction;
 
-if (isProduction) {
+if (useStructuredLogger) {
   app.use('*', structuredLogger());
 } else {
   app.use('*', logger());

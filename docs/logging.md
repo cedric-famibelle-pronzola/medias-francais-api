@@ -21,30 +21,32 @@ Le système de logging permet de :
 
 ### Architecture
 
-```
-┌─────────────┐
-│   Request   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────┐
-│  structuredLogger   │ ← Middleware Hono
-│    (middleware)     │
-└──────┬──────────────┘
-       │
-       ▼
-┌─────────────────────┐
-│   log-storage.ts    │ ← Factory (auto-détection)
-│     (factory)       │
-└──────┬──────────────┘
-       │
-       ├─────────────────┐
-       │                 │
-       ▼                 ▼
-┌─────────────┐   ┌──────────────┐
-│   DuckDB    │   │  PostgreSQL  │
-│   Adapter   │   │   Adapter    │
-└─────────────┘   └──────────────┘
+```mermaid
+flowchart TB
+    Request[HTTP Request] --> Middleware[structuredLogger Middleware]
+
+    Middleware --> ConsoleLog[console.log JSON]
+    Middleware --> Factory[log-storage.ts Factory]
+
+    ConsoleLog --> DenoDashboard[Deno Deploy Dashboard]
+
+    Factory --> |AUTO: DATABASE_URL exists?| Decision{Backend Selection}
+
+    Decision --> |Yes| PostgresAdapter[PostgreSQL Adapter]
+    Decision --> |No| DuckDBAdapter[DuckDB Adapter]
+
+    PostgresAdapter --> |INSERT| PostgresDB[(PostgreSQL Database)]
+    DuckDBAdapter --> |INSERT| DuckDBFile[(DuckDB File/Memory)]
+
+    PostgresDB --> |Production| Neon[Neon.tech AWS eu-central-1]
+    DuckDBFile --> |Local/VPS| LocalFile[logs/access_logs.db]
+
+    style Middleware fill:#e1f5ff
+    style Factory fill:#fff4e1
+    style PostgresAdapter fill:#e8f5e9
+    style DuckDBAdapter fill:#fff3e0
+    style Neon fill:#f3e5f5
+    style DenoDashboard fill:#fce4ec
 ```
 
 ## Configuration
@@ -66,25 +68,31 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 
 #### Deno Deploy
 
-Sur Deno Deploy, configurez les variables d'environnement dans le dashboard :
+Sur Deno Deploy, les logs sont **toujours capturés** via `console.log()` et visibles dans le dashboard Deno Deploy. Pour une persistance en base de données externe, configurez PostgreSQL :
 
 | Variable | Valeur | Description |
 |----------|--------|-------------|
 | `ENVIRONMENT` | `production` | Active automatiquement le logger structuré |
-| `LOG_STORAGE_BACKEND` | `postgres` | ⚠️ **Obligatoire** (DuckDB non supporté sur Deno Deploy) |
-| `DATABASE_URL` | `postgresql://...` | URL de connexion PostgreSQL |
+| `LOG_STORAGE_BACKEND` | `postgres` | Utiliser PostgreSQL pour persistance longue durée |
+| `DATABASE_URL` | `postgresql://...` | URL de connexion PostgreSQL externe (ex: Neon.tech) |
 
-⚠️ **Important** : DuckDB nécessite un système de fichiers persistant en écriture et n'est **pas compatible avec Deno Deploy** (environnement serverless sans persistance de fichiers). Utilisez **obligatoirement PostgreSQL** en production serverless.
+**Architecture sur api.medias-francais.fr** :
+- ✅ Logs capturés par Deno Deploy via `console.log()` (dashboard)
+- ✅ PostgreSQL externe sur [Neon.tech](https://neon.tech/) (AWS Allemagne) pour persistance
+- ❌ DuckDB impossible (pas de système de fichiers persistant en écriture)
+
+**Note** : PostgreSQL est **optionnel** sur Deno Deploy. Sans `DATABASE_URL`, seuls les logs du dashboard Deno Deploy sont disponibles.
 
 ## Backends disponibles
 
-### DuckDB (développement local uniquement)
+### DuckDB (développement local et production auto-hébergée)
 
 **Caractéristiques :**
 - ✅ Aucune configuration requise
-- ✅ Fichier local `logs/access_logs.db`
-- ✅ Parfait pour le développement
-- ❌ **Non compatible Deno Deploy** (nécessite système de fichiers persistant en écriture)
+- ✅ Fichier local `logs/access_logs.db` (mode fichier)
+- ✅ Mode mémoire possible (`":memory:"`) mais sans persistance
+- ✅ Parfait pour le développement et serveurs dédiés/VPS
+- ⚠️ **Sur Deno Deploy** : Mode fichier impossible, mode mémoire possible mais données perdues entre isolates
 - ❌ Non distribué (un fichier = une instance)
 
 **Activation automatique :**
@@ -120,21 +128,25 @@ WHERE json_extract(log, '$.status') >= 400
 ORDER BY json_extract(log, '$.timestamp') DESC;
 ```
 
-### PostgreSQL (local et production)
+### PostgreSQL (local, production auto-hébergée et Deno Deploy)
 
 **Caractéristiques :**
-- ✅ Compatible Deno Deploy
+- ✅ Compatible avec tous les environnements (local, VPS, Deno Deploy)
 - ✅ Distribué (plusieurs instances = même base)
 - ✅ Requêtes SQL performantes (index)
 - ✅ Sauvegarde et réplication natives
-- ⚠️ Nécessite une instance PostgreSQL
+- ✅ Base de données externe (ex: Neon.tech, Supabase, AWS RDS)
+- ⚠️ Nécessite une instance PostgreSQL accessible via réseau
 
 **Activation :**
 ```bash
-# .env
+# .env (local ou production auto-hébergée)
 USE_STRUCTURED_LOGGER=true
 LOG_STORAGE_BACKEND=postgres
 DATABASE_URL=postgresql://user:password@localhost:5432/medias_francais
+
+# Ou avec Neon.tech (comme api.medias-francais.fr)
+DATABASE_URL=postgresql://user:password@ep-xxx.eu-central-1.aws.neon.tech/logs
 ```
 
 **Structure de la table :**
@@ -267,17 +279,24 @@ DATABASE_URL=postgresql://user:password@postgres-host:5432/logs
 
 ### Production Deno Deploy
 
-⚠️ **Configuration obligatoire** : PostgreSQL uniquement
+**Logs toujours disponibles** : Deno Deploy capture automatiquement tous les `console.log()` dans son dashboard.
+
+**PostgreSQL optionnel** : Pour une persistance longue durée et des analyses SQL avancées, configurez une base PostgreSQL externe.
 
 **Variables d'environnement Deno Deploy :**
 ```
 ENVIRONMENT=production
-LOG_STORAGE_BACKEND=postgres
-DATABASE_URL=postgresql://user:password@host:5432/database
+LOG_STORAGE_BACKEND=postgres  # Optionnel
+DATABASE_URL=postgresql://user:password@host:5432/database  # Optionnel
 ```
 
+**Configuration actuelle de api.medias-francais.fr :**
+- ✅ Logs capturés par le dashboard Deno Deploy (`console.log()`)
+- ✅ PostgreSQL externe : [Neon.tech](https://neon.tech/) (serveur AWS **eu-central-1**, Allemagne)
+- ✅ Persistance longue durée pour analyses et statistiques
+
 **Services PostgreSQL compatibles :**
-- [Neon](https://neon.tech/) - PostgreSQL serverless
+- [Neon](https://neon.tech/) - PostgreSQL serverless (utilisé par api.medias-francais.fr)
 - [Supabase](https://supabase.com/) - PostgreSQL + API
 - [Railway](https://railway.app/) - PostgreSQL managé
 - [Render](https://render.com/) - PostgreSQL managé
@@ -285,10 +304,11 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 - Google Cloud SQL PostgreSQL
 
 **⚠️ Limitations Deno Deploy :**
-- ❌ Pas de système de fichiers persistant en écriture → **DuckDB impossible**
-- ✅ FFI supporté depuis 2025, mais inutile sans persistance de fichiers
-- ✅ Connexions réseau autorisées → **PostgreSQL OK**
-- ℹ️ Pour la persistance : Utiliser PostgreSQL ou [Deno KV](https://docs.deno.com/deploy/kv/)
+- ❌ Pas de système de fichiers persistant en écriture → **DuckDB fichier impossible**
+- ✅ DuckDB en mémoire possible (`":memory:"`) mais données perdues à chaque redémarrage d'isolate
+- ✅ FFI supporté depuis 2025
+- ✅ Connexions réseau autorisées → **PostgreSQL externe OK**
+- ✅ Logs dashboard intégrés → **Pas besoin de base pour consulter les logs récents**
 
 ## Confidentialité
 

@@ -86,20 +86,30 @@ Mesures de proportionnalité appliquées :
 
 Les logs sont stockés localement dans une base de données DuckDB (`logs/access_logs.db`) sur votre machine.
 
-### En production (Deno Deploy)
+### En production (api.medias-francais.fr)
 
-Les logs sont stockés dans une base de données PostgreSQL hébergée sur l'infrastructure Deno Deploy.
+L'API est hébergée sur **Deno Deploy** et les logs sont stockés de deux manières :
 
-**Important** : Deno Deploy est opéré par **Deno Land Inc**, une société américaine basée à San Diego, CA, financée par Sequoia Capital et Four Rivers Group. Les serveurs sont situés en Europe.
+1. **Dashboard Deno Deploy** (court terme) :
+   - Logs capturés automatiquement via `console.log()`
+   - Accessibles dans le dashboard Deno Deploy
+   - **Deno Land Inc**, société américaine basée à San Diego, CA
 
-**Transferts internationaux** : Bien que les serveurs soient en Europe, Deno Land Inc étant une société américaine, vos données peuvent être accessibles depuis les États-Unis. En l'absence d'accord d'adéquation UE-USA complet depuis l'invalidation du Privacy Shield, ce transfert repose sur :
+2. **Base de données PostgreSQL** (long terme) :
+   - Hébergée sur **Neon.tech** (service PostgreSQL serverless)
+   - Serveur situé sur **AWS eu-central-1** (Allemagne)
+   - **Neon**, société américaine (Delaware)
+
+**Transferts internationaux** : Les deux services (Deno Deploy et Neon) sont des sociétés américaines. Bien que les serveurs soient situés en Europe (Deno Deploy) et en Allemagne (Neon/AWS), vos données peuvent être accessibles depuis les États-Unis. En l'absence d'accord d'adéquation UE-USA complet depuis l'invalidation du Privacy Shield, ces transferts reposent sur :
 - Les clauses contractuelles types de la Commission Européenne
-- Les garanties de sécurité de Deno Deploy
+- Les garanties de sécurité de Deno Deploy et Neon
 - L'intérêt légitime du traitement (sécurité et fiabilité du service)
 
-Pour plus d'informations sur Deno Deploy :
+Pour plus d'informations :
 - [Deno Deploy Documentation](https://docs.deno.com/deploy/)
 - [Deno Privacy Policy](https://deno.com/privacy)
+- [Neon Privacy Policy](https://neon.tech/privacy-policy)
+- [Neon Security](https://neon.tech/security)
 
 ## Durée de conservation
 

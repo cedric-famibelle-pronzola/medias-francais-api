@@ -267,7 +267,7 @@ s'agit uniquement de vos données.
 | **Attestation du FAI**                       | Coûteuse, complexe, et peut révéler d'autres utilisateurs du même réseau |
 | **Logs de routeur personnel**                | Peut être falsifiée, n'existe pas chez tous les utilisateurs             |
 
-**Cas où l'identification est encore plus impossible :**
+**Cas où l'identification est difficile :**
 
 - **Réseaux d'entreprise** : Des centaines d'employés partagent la même IP
   publique

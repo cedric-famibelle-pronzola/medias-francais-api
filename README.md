@@ -29,8 +29,72 @@ Les données sont organisées en sept tableaux :
 
 ## Prérequis
 
+### Obligatoires
+
 - [Deno](https://deno.com/) - Runtime JavaScript/TypeScript
   ([Installation](https://docs.deno.com/runtime/getting_started/installation/))
+
+### Optionnels (Logs structurés)
+
+Si vous souhaitez utiliser les logs structurés avec stockage en base de données :
+
+#### Option 1 : DuckDB (recommandé pour développement local)
+
+**Aucune installation requise** - DuckDB est automatiquement installé via npm lors du
+`deno install`. Le fichier de logs sera créé automatiquement dans `logs/access_logs.db`.
+
+**Activation** :
+```bash
+# .env
+USE_STRUCTURED_LOGGER=true
+# LOG_STORAGE_BACKEND=auto (DuckDB par défaut)
+```
+
+#### Option 2 : PostgreSQL (recommandé pour production)
+
+**Prérequis** : Accès à une instance PostgreSQL (locale ou externe).
+
+**Options** :
+- **Local** : [Installation PostgreSQL](https://www.postgresql.org/download/)
+- **Cloud** :
+  - [Neon.tech](https://neon.tech/) - PostgreSQL serverless (utilisé par api.medias-francais.fr)
+  - [Supabase](https://supabase.com/) - PostgreSQL + API
+  - [Railway](https://railway.app/) - PostgreSQL managé
+  - [Render](https://render.com/) - PostgreSQL managé
+  - AWS RDS, Google Cloud SQL, Azure Database
+
+**Activation** :
+```bash
+# .env
+USE_STRUCTURED_LOGGER=true
+LOG_STORAGE_BACKEND=postgres
+DATABASE_URL=postgresql://user:password@host:5432/database
+```
+
+**Création de la table** :
+```sql
+CREATE TABLE logs (
+  id SERIAL PRIMARY KEY,
+  timestamp TIMESTAMPTZ NOT NULL,
+  level VARCHAR(10) NOT NULL,
+  method VARCHAR(10) NOT NULL,
+  path TEXT NOT NULL,
+  query TEXT,
+  status INTEGER NOT NULL,
+  duration INTEGER NOT NULL,
+  ip VARCHAR(45) NOT NULL,
+  user_agent TEXT,
+  request_id VARCHAR(8) NOT NULL,
+  referer TEXT
+);
+
+CREATE INDEX idx_logs_timestamp ON logs(timestamp DESC);
+CREATE INDEX idx_logs_status ON logs(status);
+CREATE INDEX idx_logs_path ON logs(path);
+CREATE INDEX idx_logs_request_id ON logs(request_id);
+```
+
+Pour plus de détails, consultez la [documentation du système de logging](docs/logging.md).
 
 ## Installation
 

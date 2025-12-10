@@ -19,6 +19,10 @@ Diagrammes Mermaid pour comprendre l'architecture et le fonctionnement de l'API.
     - [Cas avec plusieurs propriétaires](#cas-avec-plusieurs-propriétaires)
   - [Déploiement](#déploiement)
   - [Middlewares](#middlewares)
+  - [Système de logging](#système-de-logging)
+    - [Architecture globale](#architecture-globale-1)
+    - [Structure d'un log](#structure-dun-log)
+    - [Environnements de déploiement](#environnements-de-déploiement)
   - [Tests](#tests)
 
 ---
@@ -578,21 +582,25 @@ Chaîne de middlewares appliqués à chaque requête.
 
 ```mermaid
 flowchart LR
-    REQ([🌐 Request]) --> CORS
+    REQ([🌐 Request]) --> LOGGER
+    LOGGER[📝 Structured Logger] --> CORS
     CORS[🔓 CORS] --> RL[🛡️ Rate Limiter]
     RL --> ROUTE[🔀 Router]
     ROUTE --> HANDLER[⚙️ Handler]
     HANDLER --> RES([✅ Response])
 
     subgraph Headers["📋 Headers ajoutés"]
-        H1[Access-Control-*]
-        H2[X-RateLimit-*]
+        H1[X-Request-ID]
+        H2[Access-Control-*]
+        H3[X-RateLimit-*]
     end
 
-    CORS -.-> H1
-    RL -.-> H2
+    LOGGER -.-> H1
+    CORS -.-> H2
+    RL -.-> H3
 
     style REQ fill:#6366f1,stroke:#4f46e5,color:#fff
+    style LOGGER fill:#8b5cf6,stroke:#7c3aed,color:#fff
     style CORS fill:#f59e0b,stroke:#d97706,color:#fff
     style RL fill:#ef4444,stroke:#dc2626,color:#fff
     style ROUTE fill:#8b5cf6,stroke:#7c3aed,color:#fff
@@ -600,6 +608,136 @@ flowchart LR
     style RES fill:#10b981,stroke:#059669,color:#fff
     style H1 fill:#fbbf24,stroke:#f59e0b,color:#000
     style H2 fill:#fbbf24,stroke:#f59e0b,color:#000
+    style H3 fill:#fbbf24,stroke:#f59e0b,color:#000
+```
+
+---
+
+## Système de logging
+
+Architecture du système de logging structuré avec support multi-backend.
+
+### Architecture globale
+
+```mermaid
+flowchart TB
+    Request[HTTP Request] --> Middleware[structuredLogger Middleware]
+
+    Middleware --> ConsoleLog[console.log JSON]
+    Middleware --> Factory[log-storage.ts Factory]
+
+    ConsoleLog --> DenoDashboard[Deno Deploy Dashboard]
+
+    Factory --> |AUTO: DATABASE_URL exists?| Decision{Backend Selection}
+
+    Decision --> |Yes| PostgresAdapter[PostgreSQL Adapter]
+    Decision --> |No| DuckDBAdapter[DuckDB Adapter]
+
+    PostgresAdapter --> |INSERT| PostgresDB[(PostgreSQL Database)]
+    DuckDBAdapter --> |INSERT| DuckDBFile[(DuckDB File/Memory)]
+
+    PostgresDB --> |Production| Neon[Neon.tech AWS eu-central-1]
+    DuckDBFile --> |Local/VPS| LocalFile[logs/access_logs.db]
+
+    style Middleware fill:#e1f5ff
+    style Factory fill:#fff4e1
+    style PostgresAdapter fill:#e8f5e9
+    style DuckDBAdapter fill:#fff3e0
+    style Neon fill:#f3e5f5
+    style DenoDashboard fill:#fce4ec
+```
+
+### Structure d'un log
+
+```mermaid
+classDiagram
+    class LogEntry {
+        +string timestamp
+        +string level
+        +string method
+        +string path
+        +string query
+        +number status
+        +number duration
+        +string ip
+        +string userAgent
+        +string requestId
+        +string? referer
+    }
+
+    class LogAdapter {
+        <<interface>>
+        +initialize() Promise~void~
+        +insertLog(log) Promise~void~
+        +close() Promise~void~
+        +healthCheck() Promise~boolean~
+    }
+
+    class DuckDBAdapter {
+        -DuckDBInstance instance
+        -DuckDBConnection connection
+        +initialize() Promise~void~
+        +insertLog(log) Promise~void~
+        +close() Promise~void~
+        +healthCheck() Promise~boolean~
+    }
+
+    class PostgresAdapter {
+        -Pool pool
+        +initialize() Promise~void~
+        +insertLog(log) Promise~void~
+        +close() Promise~void~
+        +healthCheck() Promise~boolean~
+    }
+
+    LogAdapter <|.. DuckDBAdapter
+    LogAdapter <|.. PostgresAdapter
+    LogAdapter ..> LogEntry
+
+    style LogEntry fill:#3b82f6,color:#fff
+    style LogAdapter fill:#8b5cf6,color:#fff
+    style DuckDBAdapter fill:#f59e0b,color:#fff
+    style PostgresAdapter fill:#10b981,color:#fff
+```
+
+### Environnements de déploiement
+
+```mermaid
+flowchart TB
+    subgraph Local["💻 Développement Local"]
+        direction TB
+        L1[Console simple] --> L2{USE_STRUCTURED_LOGGER?}
+        L2 --> |false| L3[Logger Hono standard]
+        L2 --> |true| L4[Logs structurés]
+        L4 --> L5[(DuckDB logs/access_logs.db)]
+    end
+
+    subgraph VPS["🖥️ Production Auto-hébergée VPS"]
+        direction TB
+        V1[Logs structurés] --> V2{DATABASE_URL?}
+        V2 --> |exists| V3[(PostgreSQL externe)]
+        V2 --> |absent| V4[(DuckDB logs/access_logs.db)]
+    end
+
+    subgraph Deploy["☁️ Deno Deploy"]
+        direction TB
+        D1[Logs structurés] --> D2[console.log]
+        D1 --> D3{DATABASE_URL?}
+        D2 --> D4[📊 Dashboard Deno Deploy]
+        D3 --> |exists| D5[(PostgreSQL Neon.tech)]
+        D3 --> |absent| D6[Pas de persistance base]
+    end
+
+    style Local fill:#e1f5ff
+    style VPS fill:#e8f5e9
+    style Deploy fill:#fff3e0
+    style L3 fill:#9ca3af
+    style L5 fill:#f59e0b
+    style V3 fill:#10b981
+    style V4 fill:#f59e0b
+    style D4 fill:#fce4ec
+    style D5 fill:#10b981
+    style D6 fill:#fee2e2
 ```
 
 ---

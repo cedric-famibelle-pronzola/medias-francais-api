@@ -10,13 +10,16 @@ and this project adheres to
 
 ### ✨ Added
 
-- **Structured Logging System**: Complete logging infrastructure with multi-backend support
-  - `LogEntry` type definition with timestamp, level, method, path, query, status, duration, IP, User-Agent, request ID, referer
+- **Structured Logging System**: Complete logging infrastructure with
+  multi-backend support
+  - `LogEntry` type definition with timestamp, level, method, path, query,
+    status, duration, IP, User-Agent, request ID, referer
   - `LogAdapter` interface for extensible storage backends
   - Factory pattern with auto-detection based on environment variables
   - Non-blocking log insertion (errors don't affect HTTP responses)
 
-- **DuckDB Backend**: File-based and in-memory storage for local/self-hosted environments
+- **DuckDB Backend**: File-based and in-memory storage for local/self-hosted
+  environments
   - File mode: `logs/access_logs.db` for persistent storage
   - Memory mode: `":memory:"` for ephemeral usage
   - JSON column storage structure
@@ -38,31 +41,39 @@ and this project adheres to
   - Complete data collection disclosure with real examples
   - Legal justification (GDPR Articles 6.1.f and 6.1.c)
   - 6-month retention period (CNIL recommendation)
-  - User rights (access, rectification, deletion, opposition) with limitations explained
+  - User rights (access, rectification, deletion, opposition) with limitations
+    explained
   - International data transfers transparency (Deno Deploy, Neon.tech)
   - Detailed contact requirements for rights exercise
   - IP ownership impossibility explanation
 
 - **Comprehensive Documentation** (`docs/logging.md`):
   - Mermaid architecture diagram
-  - Configuration for each environment (local dev, self-hosted production, Deno Deploy)
+  - Configuration for each environment (local dev, self-hosted production, Deno
+    Deploy)
   - SQL query examples for both DuckDB and PostgreSQL
   - Troubleshooting guide
   - Technical nuances (DuckDB memory vs file, FFI on Deno Deploy)
 
-- **Privacy Warning in Swagger UI**: Visible notice about data collection with link to privacy policy
+- **Privacy Warning in Swagger UI**: Visible notice about data collection with
+  link to privacy policy
 
 ### 🔧 Changed
 
-- **Middleware Enhancement**: `structuredLogger` now enriches logs with query params and referer
-- **Environment-Aware Logging**: Automatically enabled in production (`ENVIRONMENT=production`)
-- **Dual Logging on Deno Deploy**: Both `console.log()` (dashboard) and PostgreSQL (long-term storage)
+- **Middleware Enhancement**: `structuredLogger` now enriches logs with query
+  params and referer
+- **Environment-Aware Logging**: Automatically enabled in production
+  (`ENVIRONMENT=production`)
+- **Dual Logging on Deno Deploy**: Both `console.log()` (dashboard) and
+  PostgreSQL (long-term storage)
 
 ### 🛠️ Configuration
 
 - **New Environment Variables**:
-  - `USE_STRUCTURED_LOGGER`: Enable structured logging (default: false in dev, true in production)
-  - `LOG_STORAGE_BACKEND`: Choose backend (`auto`, `duckdb`, `postgres`) - auto-detects based on `DATABASE_URL`
+  - `USE_STRUCTURED_LOGGER`: Enable structured logging (default: false in dev,
+    true in production)
+  - `LOG_STORAGE_BACKEND`: Choose backend (`auto`, `duckdb`, `postgres`) -
+    auto-detects based on `DATABASE_URL`
   - `DATABASE_URL`: PostgreSQL connection string (enables PostgreSQL backend)
 
 ### 📦 Dependencies
@@ -94,11 +105,14 @@ and this project adheres to
 ### 🏗️ Architecture
 
 **Multi-Environment Support**:
+
 - **Local dev**: DuckDB file (`logs/access_logs.db`) or PostgreSQL
 - **Self-hosted**: DuckDB file or PostgreSQL (your choice)
-- **Deno Deploy**: Dashboard logs (free) + optional PostgreSQL external (Neon.tech)
+- **Deno Deploy**: Dashboard logs (free) + optional PostgreSQL external
+  (Neon.tech)
 
 **Data Flow**:
+
 ```
 HTTP Request → structuredLogger
     ├─→ console.log() → Deno Deploy Dashboard
@@ -108,17 +122,20 @@ HTTP Request → structuredLogger
 ### 📊 Impact Summary
 
 **Observability**:
+
 - ✅ Complete HTTP request tracking
 - ✅ Performance monitoring (duration tracking)
 - ✅ Error diagnosis (status codes, stack traces)
 - ✅ Usage statistics (endpoints, query patterns)
 
 **Compliance**:
+
 - ✅ Legal data collection framework
 - ✅ User transparency and rights
 - ✅ International transfer compliance
 
 **Flexibility**:
+
 - ✅ Works in all deployment scenarios
 - ✅ Optional PostgreSQL for advanced analytics
 - ✅ Zero configuration required in dev

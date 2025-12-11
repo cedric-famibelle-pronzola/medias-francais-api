@@ -36,14 +36,17 @@ Les données sont organisées en sept tableaux :
 
 ### Optionnels (Logs structurés)
 
-Si vous souhaitez utiliser les logs structurés avec stockage en base de données :
+Si vous souhaitez utiliser les logs structurés avec stockage en base de données
+:
 
 #### Option 1 : DuckDB (recommandé pour développement local)
 
-**Aucune installation requise** - DuckDB est automatiquement installé via npm lors du
-`deno install`. Le fichier de logs sera créé automatiquement dans `logs/access_logs.db`.
+**Aucune installation requise** - DuckDB est automatiquement installé via npm
+lors du `deno install`. Le fichier de logs sera créé automatiquement dans
+`logs/access_logs.db`.
 
 **Activation** :
+
 ```bash
 # .env
 USE_STRUCTURED_LOGGER=true
@@ -55,15 +58,18 @@ USE_STRUCTURED_LOGGER=true
 **Prérequis** : Accès à une instance PostgreSQL (locale ou externe).
 
 **Options** :
+
 - **Local** : [Installation PostgreSQL](https://www.postgresql.org/download/)
 - **Cloud** :
-  - [Neon.tech](https://neon.tech/) - PostgreSQL serverless (utilisé par api.medias-francais.fr)
+  - [Neon.tech](https://neon.tech/) - PostgreSQL serverless (utilisé par
+    api.medias-francais.fr)
   - [Supabase](https://supabase.com/) - PostgreSQL + API
   - [Railway](https://railway.app/) - PostgreSQL managé
   - [Render](https://render.com/) - PostgreSQL managé
   - AWS RDS, Google Cloud SQL, Azure Database
 
 **Activation** :
+
 ```bash
 # .env
 USE_STRUCTURED_LOGGER=true
@@ -72,6 +78,7 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 ```
 
 **Création de la table** :
+
 ```sql
 CREATE TABLE logs (
   id SERIAL PRIMARY KEY,
@@ -94,7 +101,8 @@ CREATE INDEX idx_logs_path ON logs(path);
 CREATE INDEX idx_logs_request_id ON logs(request_id);
 ```
 
-Pour plus de détails, consultez la [documentation du système de logging](docs/logging.md).
+Pour plus de détails, consultez la
+[documentation du système de logging](docs/logging.md).
 
 ## Installation
 

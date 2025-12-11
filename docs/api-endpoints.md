@@ -815,6 +815,30 @@ L'API est protégée par un rate limiter différencié pour éviter les abus.
 
 ---
 
+## Headers de Sécurité
+
+L'API ajoute automatiquement des headers de sécurité à toutes les réponses pour protéger contre les attaques courantes (XSS, clickjacking, MIME sniffing, etc.).
+
+**Headers ajoutés automatiquement :**
+
+| Header                      | Valeur (Production)                                                                                             | Description                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `Content-Security-Policy`   | `default-src 'self'; script-src 'self' 'unsafe-inline'; ...`                           | Contrôle les sources de contenu autorisées (anti-XSS)      |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload`                                                                  | Force HTTPS (HSTS, uniquement en production sur HTTPS)     |
+| `X-Frame-Options`           | `DENY`                                                                                                          | Empêche l'intégration dans des iframes (anti-clickjacking) |
+| `X-Content-Type-Options`    | `nosniff`                                                                                                       | Empêche le MIME sniffing                                   |
+| `X-XSS-Protection`          | `1; mode=block`                                                                                                 | Protection XSS legacy des navigateurs                      |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`                                                                               | Contrôle les informations du Referer envoyées              |
+| `Permissions-Policy`        | `geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()` | Désactive les fonctionnalités du navigateur non utilisées  |
+
+**Notes :**
+
+- En développement (`ENVIRONMENT=development`), la CSP est plus permissive pour faciliter le développement
+- Le header `Strict-Transport-Security` (HSTS) n'est activé qu'en production sur les connexions HTTPS
+- Ces headers sont définis dans le middleware `securityHeaders` et appliqués à tous les endpoints
+
+---
+
 ## Documentation interactive
 
 - **Swagger UI** : http://localhost:8000/

@@ -13,6 +13,7 @@ import { getOpenApiSpec } from './openapi.ts';
 import { rateLimiter } from './middlewares/rate-limiter.ts';
 import { cache } from './middlewares/cache.ts';
 import { structuredLogger } from './middlewares/structured-logger.ts';
+import { securityHeaders } from './middlewares/security-headers.ts';
 import { ApiError } from './errors.ts';
 import { getCacheStats, invalidateCache } from './data/cache.ts';
 
@@ -24,6 +25,9 @@ const api = app.basePath(API_BASE_PATH);
 const isProduction = Deno.env.get('ENVIRONMENT') === 'production';
 const useStructuredLogger = Deno.env.get('USE_STRUCTURED_LOGGER') === 'true' ||
   isProduction;
+
+// Security headers (first middleware)
+app.use('*', securityHeaders());
 
 if (useStructuredLogger) {
   app.use('*', structuredLogger());

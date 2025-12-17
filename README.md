@@ -150,6 +150,18 @@ L'API est protégée par un rate limiter différencié :
   `X-RateLimit-Reset`
 - Code **429** en cas de dépassement
 
+### Blocage d'IP
+
+L'API intègre un système de blocage d'IP pour contrôler l'accès :
+
+- **Blocage manuel** : Via l'API d'administration
+- **Blocage automatique** : Après violations répétées du rate limiter
+- **Whitelist** : Liste d'IPs qui ne peuvent jamais être bloquées
+- **Multi-backend** : Stockage en mémoire, DuckDB ou PostgreSQL
+
+Voir la [documentation du blocage d'IP](docs/ip-blocking.md) pour plus de
+détails.
+
 ## Documentation
 
 - [Diagrammes et architecture](docs/diagrams.md)
@@ -158,4 +170,5 @@ L'API est protégée par un rate limiter différencié :
 - [API Endpoints](docs/api-endpoints.md)
 - [Exemples de requêtes (curl/httpie)](docs/exemples-requetes.md)
 - [Système de logging](docs/logging.md)
+- [Blocage d'IP](docs/ip-blocking.md)
 - [Déploiement Deno Deploy](docs/deploy.md)

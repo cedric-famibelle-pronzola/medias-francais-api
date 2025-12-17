@@ -20,11 +20,11 @@ environnements.
 
 L'API supporte trois environnements :
 
-| Environnement        | Usage                      | Logging Backend      | Hébergement      |
-| -------------------- | -------------------------- | -------------------- | ---------------- |
-| **Local**            | Développement              | Console ou DuckDB    | Machine locale   |
-| **VPS**              | Production auto-hébergée   | DuckDB ou PostgreSQL | VPS (DigitalOcean, OVH, etc.) |
-| **Deno Deploy**      | Production serverless      | PostgreSQL           | Deno Deploy (edge) |
+| Environnement   | Usage                    | Logging Backend      | Hébergement                   |
+| --------------- | ------------------------ | -------------------- | ----------------------------- |
+| **Local**       | Développement            | Console ou DuckDB    | Machine locale                |
+| **VPS**         | Production auto-hébergée | DuckDB ou PostgreSQL | VPS (DigitalOcean, OVH, etc.) |
+| **Deno Deploy** | Production serverless    | PostgreSQL           | Deno Deploy (edge)            |
 
 ---
 
@@ -343,7 +343,8 @@ disponible sur Deno Deploy (serverless).
 
 **Providers recommandés** :
 
-- [Neon.tech](https://neon.tech/) - PostgreSQL serverless (gratuit jusqu'à 500MB) ⭐ **Recommandé**
+- [Neon.tech](https://neon.tech/) - PostgreSQL serverless (gratuit jusqu'à
+  500MB) ⭐ **Recommandé**
 - [Supabase](https://supabase.com/) - PostgreSQL + API (gratuit jusqu'à 500MB)
 - [Railway](https://railway.app/) - PostgreSQL managé
 - [Render](https://render.com/) - PostgreSQL managé
@@ -351,7 +352,8 @@ disponible sur Deno Deploy (serverless).
 **Exemple avec Neon.tech** :
 
 1. Créer un compte sur [neon.tech](https://neon.tech/)
-2. Créer un nouveau projet : **New Project** → Région **Europe (Frankfurt)** ou **US East (Ohio)**
+2. Créer un nouveau projet : **New Project** → Région **Europe (Frankfurt)** ou
+   **US East (Ohio)**
 3. Copier la **Connection string**
 4. Créer la table `logs` :
 
@@ -454,23 +456,23 @@ Liste complète des variables d'environnement supportées.
 
 ### Obligatoires
 
-| Variable              | Description                | Valeurs                 | Défaut       |
-| --------------------- | -------------------------- | ----------------------- | ------------ |
-| `ENVIRONMENT`         | Environnement d'exécution  | `development`, `production` | `development` |
+| Variable      | Description               | Valeurs                     | Défaut        |
+| ------------- | ------------------------- | --------------------------- | ------------- |
+| `ENVIRONMENT` | Environnement d'exécution | `development`, `production` | `development` |
 
 ### Optionnelles
 
-| Variable                  | Description                                  | Défaut                  |
-| ------------------------- | -------------------------------------------- | ----------------------- |
-| `API_PORT`                | Port du serveur                              | `8000`                  |
-| `API_BASE_PATH`           | Chemin de base de l'API                      | `/`                     |
-| `USE_STRUCTURED_LOGGER`   | Activer les logs structurés                  | `false` (dev), `true` (prod) |
-| `LOG_STORAGE_BACKEND`     | Backend de logs (`auto`, `duckdb`, `postgres`) | `auto`                |
-| `DATABASE_URL`            | URL PostgreSQL pour logs                     | -                       |
-| `CACHE_TTL`               | Durée du cache en ms                         | `300000` (5 min)        |
-| `ADMIN_KEY`               | Clé d'administration (invalidation cache)    | -                       |
-| `CORS_ALLOWED_ORIGINS`    | Domaines autorisés CORS (séparés par `,`)    | `medias-francais.fr`    |
-| `GH_SOURCE`               | URL source GitHub TSV                        | `https://raw.githubusercontent.com/mdiplo/Medias_francais/master/` |
+| Variable                | Description                                    | Défaut                                                             |
+| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| `API_PORT`              | Port du serveur                                | `8000`                                                             |
+| `API_BASE_PATH`         | Chemin de base de l'API                        | `/`                                                                |
+| `USE_STRUCTURED_LOGGER` | Activer les logs structurés                    | `false` (dev), `true` (prod)                                       |
+| `LOG_STORAGE_BACKEND`   | Backend de logs (`auto`, `duckdb`, `postgres`) | `auto`                                                             |
+| `DATABASE_URL`          | URL PostgreSQL pour logs                       | -                                                                  |
+| `CACHE_TTL`             | Durée du cache en ms                           | `300000` (5 min)                                                   |
+| `ADMIN_KEY`             | Clé d'administration (invalidation cache)      | -                                                                  |
+| `CORS_ALLOWED_ORIGINS`  | Domaines autorisés CORS (séparés par `,`)      | `medias-francais.fr`                                               |
+| `GH_SOURCE`             | URL source GitHub TSV                          | `https://raw.githubusercontent.com/mdiplo/Medias_francais/master/` |
 
 ### Exemples de Configuration
 
@@ -720,7 +722,8 @@ deno run \
 
 **Cause** : Rate limiter en mémoire, chaque isolat a son propre compteur.
 
-**Solution** : Pour rate limiting global, implémenter avec [Deno KV](https://deno.com/kv).
+**Solution** : Pour rate limiting global, implémenter avec
+[Deno KV](https://deno.com/kv).
 
 #### 4. "Database connection failed" (PostgreSQL)
 
@@ -795,7 +798,8 @@ psql $DATABASE_URL -c "SELECT * FROM logs ORDER BY timestamp DESC LIMIT 10;"
 
 ### Support
 
-- **Issues** : [GitHub Issues](https://github.com/cedric-famibelle-pronzola/medias-francais-api/issues)
+- **Issues** :
+  [GitHub Issues](https://github.com/cedric-famibelle-pronzola/medias-francais-api/issues)
 - **Documentation API** : https://api.medias-francais.fr/
 
 ---

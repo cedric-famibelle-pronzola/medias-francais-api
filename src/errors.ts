@@ -39,3 +39,17 @@ export class BadRequestError extends ApiError {
     this.name = 'BadRequestError';
   }
 }
+
+export class IPBlockedError extends ApiError {
+  constructor(
+    message: string,
+    public blockInfo: {
+      reason: string;
+      source: 'system' | 'admin';
+      expiresAt?: Date | null;
+    }
+  ) {
+    super(message, 403, 'IP_BLOCKED', blockInfo);
+    this.name = 'IPBlockedError';
+  }
+}

@@ -1,4 +1,6 @@
 import { Context, Next } from '@hono/hono';
+import { blockIP, isIPWhitelisted } from '../db/ip-blocking-storage.ts';
+import { getClientIP } from '../utils/ip-utils.ts';
 
 interface RateLimitStore {
   [key: string]: {
@@ -14,16 +16,32 @@ interface RateLimiterOptions {
   keyGenerator?: (c: Context) => string; // Custom key generator
 }
 
+interface AutoBlockConfig {
+  enabled: boolean;
+  threshold: number; // Nombre de violations avant auto-block
+  duration: number; // Durée du blocage en minutes
+}
+
 const defaultOptions: RateLimiterOptions = {
   windowMs: 60 * 1000, // 1 minute
   max: 100, // 100 requests per minute
   message: 'Trop de requêtes, veuillez réessayer plus tard.'
 };
 
+// Store pour tracer les violations par IP
+const violationStore: { [ip: string]: number } = {};
+
 export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
   const config = { ...defaultOptions, ...options };
   const store: RateLimitStore = {};
   let lastCleanup = Date.now();
+
+  // Configuration de l'auto-block depuis les variables d'environnement
+  const autoBlockConfig: AutoBlockConfig = {
+    enabled: Deno.env.get('AUTO_BLOCK_ENABLED') === 'true',
+    threshold: parseInt(Deno.env.get('AUTO_BLOCK_THRESHOLD') || '10', 10),
+    duration: parseInt(Deno.env.get('AUTO_BLOCK_DURATION') || '60', 10)
+  };
 
   return async (c: Context, next: Next) => {
     const now = Date.now();
@@ -33,6 +51,10 @@ export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
       for (const key in store) {
         if (store[key].resetTime < now) {
           delete store[key];
+          // Nettoyer aussi le violationStore pour éviter les fuites mémoire
+          if (violationStore[key]) {
+            delete violationStore[key];
+          }
         }
       }
       lastCleanup = now;
@@ -63,6 +85,71 @@ export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
 
     // Check if limit exceeded
     if (store[key].count > config.max) {
+      // Auto-blocking logic
+      if (autoBlockConfig.enabled && key !== 'unknown') {
+        // Incrémenter le compteur de violations
+        violationStore[key] = (violationStore[key] || 0) + 1;
+
+        // Si le seuil est atteint, bloquer l'IP
+        if (violationStore[key] >= autoBlockConfig.threshold) {
+          // Vérifier la whitelist avant de bloquer
+          isIPWhitelisted(key)
+            .then((isWhitelisted) => {
+              if (!isWhitelisted) {
+                // Bloquer l'IP (appel non-bloquant)
+                const expiresAt = new Date(
+                  Date.now() + autoBlockConfig.duration * 60 * 1000
+                );
+
+                blockIP({
+                  ip: key,
+                  reason: `Auto-block: ${
+                    violationStore[key]
+                  } rate-limit violations`,
+                  blockedAt: new Date(),
+                  expiresAt,
+                  source: 'system',
+                  metadata: {
+                    violations: violationStore[key],
+                    endpoint: c.req.path,
+                    userAgent: c.req.header('user-agent')
+                  }
+                })
+                  .then(() => {
+                    // deno-lint-ignore no-console
+                    console.log(
+                      `[RateLimiter] Auto-blocked IP ${key} after ${
+                        violationStore[key]
+                      } violations`
+                    );
+                  })
+                  .catch((err) => {
+                    // deno-lint-ignore no-console
+                    console.error(
+                      `[RateLimiter] Failed to auto-block IP ${key}:`,
+                      err
+                    );
+                  });
+              } else {
+                // deno-lint-ignore no-console
+                console.log(
+                  `[RateLimiter] IP ${key} reached violation threshold but is whitelisted`
+                );
+              }
+            })
+            .catch((err) => {
+              // deno-lint-ignore no-console
+              console.error(
+                '[RateLimiter] Failed to check whitelist:',
+                err
+              );
+            });
+
+          // Reset le compteur de violations après tentative de blocage
+          delete violationStore[key];
+        }
+      }
+
       c.header(
         'Retry-After',
         Math.ceil((store[key].resetTime - now) / 1000).toString()
@@ -80,26 +167,4 @@ export function rateLimiter(options: Partial<RateLimiterOptions> = {}) {
 
     await next();
   };
-}
-
-function getClientIP(c: Context): string {
-  // Check various headers for client IP
-  const forwarded = c.req.header('x-forwarded-for');
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-
-  const realIP = c.req.header('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  // Fallback to connection info (Deno specific)
-  // @ts-ignore - Deno specific
-  const connInfo = c.env?.remoteAddr;
-  if (connInfo) {
-    return connInfo.hostname || 'unknown';
-  }
-
-  return 'unknown';
 }

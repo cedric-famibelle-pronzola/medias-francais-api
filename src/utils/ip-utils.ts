@@ -3,39 +3,53 @@ import type { Context } from '@hono/hono';
 /**
  * Extrait l'IP du client depuis le contexte de la requête
  * Vérifie plusieurs headers de proxy dans l'ordre de priorité
+ * Normalise l'IP pour gérer les IPv4-mapped IPv6
  *
  * @param c - Contexte Hono
- * @returns L'adresse IP du client ou 'unknown' si non détectable
+ * @returns L'adresse IP du client normalisée ou 'unknown' si non détectable
  */
 export function getClientIP(c: Context): string {
+  let rawIP: string | undefined;
+
   // 1. x-forwarded-for (proxy/load balancer)
   const forwarded = c.req.header('x-forwarded-for');
   if (forwarded) {
     // Prendre la première IP de la liste (client original)
-    return forwarded.split(',')[0].trim();
+    rawIP = forwarded.split(',')[0].trim();
   }
 
   // 2. x-real-ip (Nginx, Apache)
-  const realIP = c.req.header('x-real-ip');
-  if (realIP) {
-    return realIP.trim();
+  if (!rawIP) {
+    const realIP = c.req.header('x-real-ip');
+    if (realIP) {
+      rawIP = realIP.trim();
+    }
   }
 
   // 3. cf-connecting-ip (Cloudflare)
-  const cfIP = c.req.header('cf-connecting-ip');
-  if (cfIP) {
-    return cfIP.trim();
+  if (!rawIP) {
+    const cfIP = c.req.header('cf-connecting-ip');
+    if (cfIP) {
+      rawIP = cfIP.trim();
+    }
   }
 
   // 4. Adresse de connexion directe (Deno specific)
-  // @ts-ignore - Propriété Deno-specific
-  const connInfo = c.env?.remoteAddr;
-  if (connInfo?.hostname) {
-    return connInfo.hostname;
+  if (!rawIP) {
+    // @ts-ignore - Propriété Deno-specific
+    const connInfo = c.env?.remoteAddr;
+    if (connInfo?.hostname) {
+      rawIP = connInfo.hostname;
+    }
   }
 
   // Fallback si aucune IP détectable
-  return 'unknown';
+  if (!rawIP) {
+    return 'unknown';
+  }
+
+  // Normaliser l'IP (convertit ::ffff:x.x.x.x en x.x.x.x)
+  return normalizeIP(rawIP);
 }
 
 /**
@@ -74,6 +88,7 @@ export function isValidIP(ip: string): boolean {
 /**
  * Normalise une adresse IP pour uniformiser le stockage
  *
+ * - IPv4-mapped IPv6 : convertit en IPv4 pur (::ffff:192.168.1.1 → 192.168.1.1)
  * - IPv4 : retire les zéros initiaux (001.002.003.004 → 1.2.3.4)
  * - IPv6 : lowercase et retire le zone ID (fe80::1%eth0 → fe80::1)
  *
@@ -87,6 +102,18 @@ export function normalizeIP(ip: string): string {
 
   // Retirer le zone ID si présent (IPv6)
   const withoutZone = ip.split('%')[0];
+
+  // Détecter et convertir IPv4-mapped IPv6 (::ffff:192.168.1.1)
+  const ipv4MappedRegex = /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i;
+  const match = withoutZone.match(ipv4MappedRegex);
+  if (match) {
+    // Extraire l'IPv4 et le normaliser
+    const ipv4 = match[1];
+    return ipv4
+      .split('.')
+      .map((octet) => parseInt(octet, 10).toString())
+      .join('.');
+  }
 
   // Détection IPv6 (contient ':' mais pas '.')
   if (withoutZone.includes(':') && !withoutZone.includes('.')) {

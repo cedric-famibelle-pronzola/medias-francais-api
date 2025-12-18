@@ -58,6 +58,23 @@ async function adminAuth(c: Context, next: Next) {
 adminRouter.use('/ip-blocking/*', adminAuth);
 
 /**
+ * Helper pour valider et normaliser une IP
+ * @throws ValidationError si l'IP est invalide
+ */
+function validateAndNormalizeIP(ip: string, fieldName = 'ip'): string {
+  if (!ip || typeof ip !== 'string') {
+    throw new ValidationError('IP address is required', fieldName);
+  }
+
+  const normalizedIP = normalizeIP(ip);
+  if (!isValidIP(normalizedIP)) {
+    throw new ValidationError(`Invalid IP address: ${ip}`, fieldName);
+  }
+
+  return normalizedIP;
+}
+
+/**
  * POST /admin/ip-blocking/block
  * Bloquer une IP manuellement
  */
@@ -83,19 +100,12 @@ adminRouter.post('/ip-blocking/block', async (c) => {
   }
 
   // Validation des champs
-  if (!body.ip || typeof body.ip !== 'string') {
-    throw new ValidationError('IP address is required', 'ip');
-  }
-
   if (!body.reason || typeof body.reason !== 'string') {
     throw new ValidationError('Reason is required', 'reason');
   }
 
-  // Normaliser et valider l'IP
-  const normalizedIP = normalizeIP(body.ip);
-  if (!isValidIP(normalizedIP)) {
-    throw new ValidationError(`Invalid IP address: ${body.ip}`, 'ip');
-  }
+  // Valider et normaliser l'IP
+  const normalizedIP = validateAndNormalizeIP(body.ip);
 
   // Détection de l'IP admin
   const adminIP = getClientIP(c);
@@ -150,15 +160,7 @@ adminRouter.post('/ip-blocking/block', async (c) => {
  */
 adminRouter.delete('/ip-blocking/unblock/:ip', async (c) => {
   const ip = c.req.param('ip');
-
-  if (!ip) {
-    throw new ValidationError('IP address is required', 'ip');
-  }
-
-  const normalizedIP = normalizeIP(ip);
-  if (!isValidIP(normalizedIP)) {
-    throw new ValidationError(`Invalid IP address: ${ip}`, 'ip');
-  }
+  const normalizedIP = validateAndNormalizeIP(ip);
 
   const wasBlocked = await unblockIP(normalizedIP);
 
@@ -233,15 +235,7 @@ adminRouter.post('/ip-blocking/whitelist/add', async (c) => {
     );
   }
 
-  if (!body.ip || typeof body.ip !== 'string') {
-    throw new ValidationError('IP address is required', 'ip');
-  }
-
-  const normalizedIP = normalizeIP(body.ip);
-  if (!isValidIP(normalizedIP)) {
-    throw new ValidationError(`Invalid IP address: ${body.ip}`, 'ip');
-  }
-
+  const normalizedIP = validateAndNormalizeIP(body.ip);
   const adminIP = getClientIP(c);
 
   await addToWhitelist({
@@ -276,15 +270,7 @@ adminRouter.post('/ip-blocking/whitelist/add', async (c) => {
  */
 adminRouter.delete('/ip-blocking/whitelist/remove/:ip', async (c) => {
   const ip = c.req.param('ip');
-
-  if (!ip) {
-    throw new ValidationError('IP address is required', 'ip');
-  }
-
-  const normalizedIP = normalizeIP(ip);
-  if (!isValidIP(normalizedIP)) {
-    throw new ValidationError(`Invalid IP address: ${ip}`, 'ip');
-  }
+  const normalizedIP = validateAndNormalizeIP(ip);
 
   const wasWhitelisted = await removeFromWhitelist(normalizedIP);
 
@@ -354,15 +340,7 @@ adminRouter.get('/ip-blocking/stats', async (c) => {
  */
 adminRouter.get('/ip-blocking/check/:ip', async (c) => {
   const ip = c.req.param('ip');
-
-  if (!ip) {
-    throw new ValidationError('IP address is required', 'ip');
-  }
-
-  const normalizedIP = normalizeIP(ip);
-  if (!isValidIP(normalizedIP)) {
-    throw new ValidationError(`Invalid IP address: ${ip}`, 'ip');
-  }
+  const normalizedIP = validateAndNormalizeIP(ip);
 
   const [blockInfo, isWhitelisted] = await Promise.all([
     isIPBlocked(normalizedIP),

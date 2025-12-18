@@ -106,3 +106,55 @@ export function normalizeIP(ip: string): string {
   // Fallback : retourner tel quel
   return withoutZone;
 }
+
+/**
+ * Convertit une adresse IP en notation CIDR pour PostgreSQL
+ * Ajoute /32 pour IPv4 ou /128 pour IPv6
+ *
+ * @param ip - L'adresse IP normalisée
+ * @returns L'IP en notation CIDR (ex: "192.168.1.1/32" ou "::1/128")
+ */
+export function ipToCIDR(ip: string): string {
+  if (!ip || typeof ip !== 'string') {
+    return ip;
+  }
+
+  // Si déjà en notation CIDR, retourner tel quel
+  if (ip.includes('/')) {
+    return ip;
+  }
+
+  // IPv6 (contient ':' mais pas '.')
+  if (ip.includes(':') && !ip.includes('.')) {
+    return `${ip}/128`;
+  }
+
+  // IPv4 (contient '.')
+  if (ip.includes('.')) {
+    return `${ip}/32`;
+  }
+
+  // Fallback
+  return ip;
+}
+
+/**
+ * Retire le suffixe CIDR d'une IP si présent
+ * Convertit "192.168.1.1/32" en "192.168.1.1" ou "::1/128" en "::1"
+ *
+ * @param ip - L'adresse IP potentiellement avec CIDR
+ * @returns L'IP sans le suffixe CIDR
+ */
+export function removeCIDRSuffix(ip: string): string {
+  if (!ip || typeof ip !== 'string') {
+    return ip;
+  }
+
+  // Si pas de '/', retourner tel quel
+  if (!ip.includes('/')) {
+    return ip;
+  }
+
+  // Retirer le suffixe /XX
+  return ip.split('/')[0];
+}

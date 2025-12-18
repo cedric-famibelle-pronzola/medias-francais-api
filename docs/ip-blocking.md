@@ -122,12 +122,12 @@ Si vous utilisez PostgreSQL, les tables sont créées automatiquement :
 ```sql
 -- Table des IPs bloquées
 CREATE TABLE blocked_ips (
-  ip CIDR NOT NULL PRIMARY KEY,
+  ip INET NOT NULL PRIMARY KEY,
   reason TEXT NOT NULL,
   blocked_at TIMESTAMPTZ NOT NULL,
   expires_at TIMESTAMPTZ,
   source VARCHAR(10) NOT NULL CHECK (source IN ('system', 'admin')),
-  blocked_by_ip CIDR,
+  blocked_by_ip INET,
   blocked_by_identifier VARCHAR(255),
   metadata JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -135,9 +135,9 @@ CREATE TABLE blocked_ips (
 
 -- Table des IPs en whitelist
 CREATE TABLE whitelisted_ips (
-  ip CIDR NOT NULL PRIMARY KEY,
+  ip INET NOT NULL PRIMARY KEY,
   added_at TIMESTAMPTZ NOT NULL,
-  added_by_ip CIDR,
+  added_by_ip INET,
   added_by_identifier VARCHAR(255),
   reason TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -684,6 +684,13 @@ Ordre de priorité :
 2. `x-real-ip`
 3. `cf-connecting-ip` (Cloudflare)
 4. IP de connexion directe
+
+**Normalisation IPv4-mapped IPv6** :
+
+Les IPs au format IPv4-mapped IPv6 (`::ffff:192.168.1.1`) sont automatiquement
+converties en IPv4 pur (`192.168.1.1`). Cela garantit que le blocage fonctionne
+correctement même quand les proxies/load balancers transmettent les IPs dans ce
+format.
 
 ### Protection anti-self-block
 

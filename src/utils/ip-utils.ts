@@ -1,0 +1,108 @@
+import type { Context } from '@hono/hono';
+
+/**
+ * Extrait l'IP du client depuis le contexte de la requête
+ * Vérifie plusieurs headers de proxy dans l'ordre de priorité
+ *
+ * @param c - Contexte Hono
+ * @returns L'adresse IP du client ou 'unknown' si non détectable
+ */
+export function getClientIP(c: Context): string {
+  // 1. x-forwarded-for (proxy/load balancer)
+  const forwarded = c.req.header('x-forwarded-for');
+  if (forwarded) {
+    // Prendre la première IP de la liste (client original)
+    return forwarded.split(',')[0].trim();
+  }
+
+  // 2. x-real-ip (Nginx, Apache)
+  const realIP = c.req.header('x-real-ip');
+  if (realIP) {
+    return realIP.trim();
+  }
+
+  // 3. cf-connecting-ip (Cloudflare)
+  const cfIP = c.req.header('cf-connecting-ip');
+  if (cfIP) {
+    return cfIP.trim();
+  }
+
+  // 4. Adresse de connexion directe (Deno specific)
+  // @ts-ignore - Propriété Deno-specific
+  const connInfo = c.env?.remoteAddr;
+  if (connInfo?.hostname) {
+    return connInfo.hostname;
+  }
+
+  // Fallback si aucune IP détectable
+  return 'unknown';
+}
+
+/**
+ * Valide le format d'une adresse IP (IPv4 ou IPv6)
+ *
+ * @param ip - L'adresse IP à valider
+ * @returns true si l'IP est valide, false sinon
+ */
+export function isValidIP(ip: string): boolean {
+  if (!ip || typeof ip !== 'string') {
+    return false;
+  }
+
+  // IPv4 regex
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+  // IPv6 regex (simplifié)
+  const ipv6Regex = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+
+  if (ipv4Regex.test(ip)) {
+    // Valider que chaque octet est entre 0 et 255
+    const octets = ip.split('.');
+    return octets.every((octet) => {
+      const num = parseInt(octet, 10);
+      return num >= 0 && num <= 255;
+    });
+  }
+
+  if (ipv6Regex.test(ip)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Normalise une adresse IP pour uniformiser le stockage
+ *
+ * - IPv4 : retire les zéros initiaux (001.002.003.004 → 1.2.3.4)
+ * - IPv6 : lowercase et retire le zone ID (fe80::1%eth0 → fe80::1)
+ *
+ * @param ip - L'adresse IP à normaliser
+ * @returns L'IP normalisée
+ */
+export function normalizeIP(ip: string): string {
+  if (!ip || typeof ip !== 'string') {
+    return ip;
+  }
+
+  // Retirer le zone ID si présent (IPv6)
+  const withoutZone = ip.split('%')[0];
+
+  // Détection IPv6 (contient ':' mais pas '.')
+  if (withoutZone.includes(':') && !withoutZone.includes('.')) {
+    // IPv6 : lowercase pour uniformité
+    return withoutZone.toLowerCase();
+  }
+
+  // Détection IPv4
+  if (withoutZone.includes('.')) {
+    // IPv4 : retirer les zéros initiaux de chaque octet
+    return withoutZone
+      .split('.')
+      .map((octet) => parseInt(octet, 10).toString())
+      .join('.');
+  }
+
+  // Fallback : retourner tel quel
+  return withoutZone;
+}

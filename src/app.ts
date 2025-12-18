@@ -8,13 +8,15 @@ import { mediasRouter } from './routers/medias.router.ts';
 import { personnesRouter } from './routers/personnes.router.ts';
 import { organisationsRouter } from './routers/organisations.router.ts';
 import { statsRouter } from './routers/stats.router.ts';
+import { adminRouter } from './routers/admin.router.ts';
 import { mediasService } from './services/medias.service.ts';
 import { getOpenApiSpec } from './openapi.ts';
 import { rateLimiter } from './middlewares/rate-limiter.ts';
 import { cache } from './middlewares/cache.ts';
 import { structuredLogger } from './middlewares/structured-logger.ts';
 import { securityHeaders } from './middlewares/security-headers.ts';
-import { ApiError } from './errors.ts';
+import { ipBlockingMiddleware } from './middlewares/ip-blocking.ts';
+import { ApiError, IPBlockedError } from './errors.ts';
 import { getCacheStats, invalidateCache } from './data/cache.ts';
 
 const app = new Hono();
@@ -93,6 +95,9 @@ app.use(
     credentials: false
   })
 );
+
+// IP blocking (after CORS, before rate limiter)
+app.use('*', ipBlockingMiddleware);
 
 // Differentiated rate limiting by endpoint type
 const searchPattern = API_BASE_PATH === '/'
@@ -202,6 +207,7 @@ api.route('/medias', mediasRouter);
 api.route('/personnes', personnesRouter);
 api.route('/organisations', organisationsRouter);
 api.route('/stats', statsRouter);
+app.route('/admin', adminRouter);
 
 // Référentiels (root level)
 api.get('/types', (c) => {
@@ -241,6 +247,34 @@ app.onError((err, c) => {
     path: c.req.path,
     method: c.req.method
   };
+
+  // Handle IP blocked errors (add Retry-After header for temporary blocks)
+  if (err instanceof IPBlockedError) {
+    // deno-lint-ignore no-console
+    console.error('[IP Blocked]', logData);
+
+    // Add Retry-After header if temporary block
+    if (err.blockInfo.expiresAt) {
+      const retryAfter = Math.ceil(
+        (err.blockInfo.expiresAt.getTime() - Date.now()) / 1000
+      );
+      if (retryAfter > 0) {
+        c.header('Retry-After', retryAfter.toString());
+      }
+    }
+
+    return c.json(
+      {
+        error: {
+          id: errorId,
+          code: err.code,
+          message: err.message,
+          details: err.blockInfo
+        }
+      },
+      403
+    );
+  }
 
   // Handle custom API errors
   if (err instanceof ApiError) {

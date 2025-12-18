@@ -9,7 +9,7 @@ const baseSpec = {
       'pour des raisons de sécurité, performance et diagnostic. Ces données sont stockées sur les serveurs de ' +
       '**Deno Land Inc** (société américaine basée à San Diego, CA) via Deno Deploy. ' +
       'Consultez [PRIVACY.md](https://github.com/cedric-famibelle-pronzola/medias-francais-api/blob/master/PRIVACY.md) pour plus de détails.',
-    version: '1.2.1',
+    version: '1.3.0',
     contact: {
       name: 'API Support'
     },

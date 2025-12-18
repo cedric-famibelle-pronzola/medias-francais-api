@@ -530,7 +530,7 @@ IP_BLOCKING_STORAGE=duckdb
 - Production-ready
 - Fonctionne avec plusieurs instances
 - ACID compliant
-- Types CIDR natifs pour validation
+- Types INET natifs pour stockage et validation d'IP
 
 **Inconvénients** :
 

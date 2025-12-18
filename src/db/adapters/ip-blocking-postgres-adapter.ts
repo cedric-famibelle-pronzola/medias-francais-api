@@ -39,7 +39,7 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
         blocked_at TIMESTAMPTZ NOT NULL,
         expires_at TIMESTAMPTZ,
         source VARCHAR(10) NOT NULL CHECK (source IN ('system', 'admin')),
-        blocked_by_ip INET,
+        blocked_by_ip CIDR,
         blocked_by_identifier VARCHAR(255),
         metadata JSONB,
         created_at TIMESTAMPTZ DEFAULT NOW()

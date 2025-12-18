@@ -1,7 +1,7 @@
 # Système de Blocage d'IP
 
-Le système de blocage d'IP permet de contrôler l'accès à l'API en bloquant ou
-en autorisant des adresses IP spécifiques.
+Le système de blocage d'IP permet de contrôler l'accès à l'API en bloquant ou en
+autorisant des adresses IP spécifiques.
 
 ## Table des matières
 

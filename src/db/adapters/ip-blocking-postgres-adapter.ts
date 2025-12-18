@@ -5,7 +5,6 @@ import type {
   IPBlockingStats,
   WhitelistedIP
 } from '../../@types/blocked-ip.ts';
-import { ipToCIDR, removeCIDRSuffix } from '../../utils/ip-utils.ts';
 
 const { Pool } = pg;
 
@@ -35,12 +34,12 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
     // Créer les tables si elles n'existent pas
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS blocked_ips (
-        ip CIDR NOT NULL PRIMARY KEY,
+        ip INET NOT NULL PRIMARY KEY,
         reason TEXT NOT NULL,
         blocked_at TIMESTAMPTZ NOT NULL,
         expires_at TIMESTAMPTZ,
         source VARCHAR(10) NOT NULL CHECK (source IN ('system', 'admin')),
-        blocked_by_ip CIDR,
+        blocked_by_ip INET,
         blocked_by_identifier VARCHAR(255),
         metadata JSONB,
         created_at TIMESTAMPTZ DEFAULT NOW()
@@ -56,9 +55,9 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
 
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS whitelisted_ips (
-        ip CIDR NOT NULL PRIMARY KEY,
+        ip INET NOT NULL PRIMARY KEY,
         added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        added_by_ip CIDR,
+        added_by_ip INET,
         added_by_identifier VARCHAR(255),
         reason TEXT
       )
@@ -108,12 +107,12 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
         metadata = EXCLUDED.metadata
     `,
       [
-        ipToCIDR(block.ip),
+        block.ip,
         block.reason,
         block.blockedAt,
         block.expiresAt || null,
         block.source,
-        block.blockedBy?.ip ? ipToCIDR(block.blockedBy.ip) : null,
+        block.blockedBy?.ip || null,
         block.blockedBy?.identifier || null,
         block.metadata ? JSON.stringify(block.metadata) : null
       ]
@@ -127,7 +126,7 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
 
     const result = await this.pool.query(
       'DELETE FROM blocked_ips WHERE ip = $1',
-      [ipToCIDR(ip)]
+      [ip]
     );
 
     return (result.rowCount ?? 0) > 0;
@@ -151,7 +150,7 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
       WHERE ip = $1
       AND (expires_at IS NULL OR expires_at > NOW())
     `,
-      [ipToCIDR(ip)]
+      [ip]
     );
 
     if (result.rows.length === 0) {
@@ -198,9 +197,9 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
         reason = EXCLUDED.reason
     `,
       [
-        ipToCIDR(whitelist.ip),
+        whitelist.ip,
         whitelist.addedAt,
-        whitelist.addedBy?.ip ? ipToCIDR(whitelist.addedBy.ip) : null,
+        whitelist.addedBy?.ip || null,
         whitelist.addedBy?.identifier || null,
         whitelist.reason || null
       ]
@@ -214,7 +213,7 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
 
     const result = await this.pool.query(
       'DELETE FROM whitelisted_ips WHERE ip = $1',
-      [ipToCIDR(ip)]
+      [ip]
     );
 
     return (result.rowCount ?? 0) > 0;
@@ -227,7 +226,7 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
 
     const result = await this.pool.query(
       'SELECT ip FROM whitelisted_ips WHERE ip = $1',
-      [ipToCIDR(ip)]
+      [ip]
     );
 
     return result.rows.length > 0;
@@ -301,14 +300,14 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
   // deno-lint-ignore no-explicit-any
   private rowToBlockedIP(row: any): BlockedIP {
     return {
-      ip: removeCIDRSuffix(String(row.ip)),
+      ip: String(row.ip),
       reason: String(row.reason),
       blockedAt: new Date(row.blocked_at),
       expiresAt: row.expires_at ? new Date(row.expires_at) : null,
       source: String(row.source) as 'system' | 'admin',
       blockedBy: row.blocked_by_ip || row.blocked_by_identifier
         ? {
-          ip: removeCIDRSuffix(String(row.blocked_by_ip || '')),
+          ip: String(row.blocked_by_ip || ''),
           identifier: row.blocked_by_identifier
             ? String(row.blocked_by_identifier)
             : undefined
@@ -323,11 +322,11 @@ export class IPBlockingPostgresAdapter implements IPBlockingAdapter {
   // deno-lint-ignore no-explicit-any
   private rowToWhitelistedIP(row: any): WhitelistedIP {
     return {
-      ip: removeCIDRSuffix(String(row.ip)),
+      ip: String(row.ip),
       addedAt: new Date(row.added_at),
       addedBy: row.added_by_ip || row.added_by_identifier
         ? {
-          ip: removeCIDRSuffix(String(row.added_by_ip || '')),
+          ip: String(row.added_by_ip || ''),
           identifier: row.added_by_identifier
             ? String(row.added_by_identifier)
             : undefined
